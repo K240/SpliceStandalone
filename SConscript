@@ -95,6 +95,17 @@ if FABRIC_BUILD_OS == 'Windows':
     standaloneFiles.append(env.Install(STAGE_DIR, env.Glob(os.path.join(qtBinDir, '*%s*.dylib' % qtLib))))
     standaloneFiles.append(env.Install(STAGE_DIR, env.Glob(os.path.join(qtBinDir, '*%s*.dll' % qtLib))))
 
+# install the extensions
+for ext in ['SpliceStandalone']:
+  extFiles = env.GlobRecursive(os.path.join(env.Dir('#').abspath, 'Exts', ext, '*.kl'))
+  extFiles += env.GlobRecursive(os.path.join(env.Dir('#').abspath, 'Exts', ext, '*.json'))
+  for extFile in extFiles:
+    absFile = extFile.abspath
+    relFile = os.path.relpath(absFile, env.Dir('#').srcnode().abspath)
+    absFile = os.path.join(STAGE_DIR.abspath, relFile)
+    standaloneFiles.append(env.Install(os.path.split(absFile)[0], extFile))
+standaloneFiles.append(env.Install(STAGE_DIR.Dir('images'), env.Glob(os.path.join(env.Dir('#').abspath, 'images', '*'))))
+  
 # install PDB files on windows
 if FABRIC_BUILD_TYPE == 'Debug' and FABRIC_BUILD_OS == 'Windows':
   env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s_incremental.pdb /Zi" % File(PDB)) or ""}']

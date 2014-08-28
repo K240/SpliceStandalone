@@ -30,8 +30,6 @@ namespace FabricSplice
 
     void setTime(float time);
     void setWireFrame(bool wireFrame);
-    void frameAll();
-    void frameSelection();
     void toggleGrid();
     void resetCameraPosition();
 

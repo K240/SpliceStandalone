@@ -64,16 +64,6 @@ bool MainWindowKeyFilter::eventFilter(QObject* object, QEvent* event)
           }
         }
       }
-      case Qt::Key_A:
-      {
-        m_window->m_glWidget->frameAll();
-        return true;
-      }
-      case Qt::Key_F:
-      {
-        m_window->m_glWidget->frameSelection();
-        return true;
-      }
       case Qt::Key_G:
       {
         m_window->m_glWidget->toggleGrid();

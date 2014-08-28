@@ -28,7 +28,6 @@ namespace FabricSplice
   	void setKlPath(const std::string & path);
   	std::string klPath() { return m_klScriptPath; }
 
-  	// From SceneLib::Scene interface. Re-run the KL script. Returns false if the evalution failed (due to a KL compile error or runtime failure).
   	bool reloadCode();
 
   	// the parameters in the code changes they need to be reloaded

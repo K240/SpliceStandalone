@@ -144,9 +144,7 @@ void SpliceStandalone::constructFabricClient()
     }
 
     client.loadExtension("SpliceStandalone");
-    client.loadExtension("UIParameters");
     client.loadExtension("InlineDrawing");
-    client.loadExtension("SceneLib");
     client.loadExtension("Animation");
 
   );

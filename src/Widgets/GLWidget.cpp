@@ -46,14 +46,14 @@ void GLWidget::resetRTVals()
     m_camera = constructObjectRTVal("SpliceStandaloneCamera");
     if(!m_camera.isValid())
     {
-      printf("[SceneLibTreeWidget] Error: Cannot construct SpliceStandaloneCamera RTVal (extension loaded?)\n");
+      printf("[GLWidget] Error: Cannot construct SpliceStandaloneCamera RTVal (extension loaded?)\n");
       return;
     }
 
     m_viewport = constructObjectRTVal("SpliceStandaloneViewport");
     if(!m_viewport.isValid())
     {
-      printf("[SceneLibTreeWidget] Error: Cannot construct SpliceStandaloneViewport RTVal (extension loaded?)\n");
+      printf("[GLWidget] Error: Cannot construct SpliceStandaloneViewport RTVal (extension loaded?)\n");
       return;
     }
 
@@ -62,7 +62,7 @@ void GLWidget::resetRTVals()
     m_drawContext = constructObjectRTVal("DrawContext");
     if(!m_drawContext.isValid())
     {
-      printf("[SceneLibTreeWidget] Error: Cannot construct DrawContext RTVal (extension loaded?)\n");
+      printf("[GLWidget] Error: Cannot construct DrawContext RTVal (extension loaded?)\n");
       return;
     }
 
@@ -136,26 +136,6 @@ void GLWidget::setWireFrame(bool wireFrame)
 
     FabricCore::RTVal wireFrameVal = constructBooleanRTVal(wireFrame);
     m_viewport.callMethod("", "setWireFrame", 1, &wireFrameVal);
-
-  );
-  updateGL();
-}
-
-void GLWidget::frameAll()
-{
-  FABRIC_TRY("GLWidget::frameAll",
-
-    m_viewport.callMethod("", "frameAll", 0, 0);
-
-  );
-  updateGL();
-}
-
-void GLWidget::frameSelection()
-{
-  FABRIC_TRY("GLWidget::frameSelection",
-
-    m_viewport.callMethod("", "frameSelection", 0, 0);
 
   );
   updateGL();

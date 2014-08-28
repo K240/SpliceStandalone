@@ -97,27 +97,21 @@ bool SpliceGraphWrapper::setFrame(int frame)
   if(m_isTimeDependent == -1) {
     FABRIC_TRY_RETURN("SpliceGraphWrapper::setFrame", false,
 
-      FabricCore::RTVal params = m_dgGraph.getDGPort("params").getRTVal();
-      FabricCore::RTVal nameVal = constructStringRTVal("frame");
-      m_isTimeDependent = params.callMethod("Boolean", "hasChild", 1, &nameVal).getBoolean() ? 1 : 0;
+      FabricSplice::DGPort port = m_dgGraph.getDGPort("time");
+      std::string dataType = port.getDataType();
+      m_isTimeDependent = (dataType == "Scalar" || dataType == "Float32") && !port.isArray();
 
     );
   }
   if(m_isTimeDependent == 0)
     return false;
 
-  DGPort paramsPort = m_dgGraph.getDGPort("params");
-  FabricCore::RTVal groupParam = paramsPort.getRTVal();
+  DGPort port = m_dgGraph.getDGPort("time");
 
   FABRIC_TRY_RETURN("SpliceGraphWrapper::setFrame", false,
 
-    FabricCore::RTVal nameVal = constructStringRTVal("frame");
-    if(!groupParam.callMethod("Boolean", "hasChild", 1, &nameVal).getBoolean())
-      return false;
-    FabricCore::RTVal frameParam = groupParam.callMethod("Float32Parameter", "getChildByName", 1, &nameVal);
-    FabricCore::RTVal frameVal = constructSInt32RTVal(frame);
-    frameParam.callMethod("", "setValue", 1, &frameVal);
-    paramsPort.setRTVal(groupParam);
+    FabricCore::RTVal timeVal = constructFloat32RTVal(float(frame) / 24.0);
+    port.setRTVal(timeVal);
 
   );
   return evaluate();

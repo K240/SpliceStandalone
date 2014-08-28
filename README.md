@@ -19,7 +19,7 @@ Building
 
 A scons (http://www.scons.org/) build script is provided. Fabric Splice Standalone depends on
 * A static build of boost (http://www.boost.org/), version 1.55 or higher.
-* A dynamic build of Qt 4.8+
+* A build of Qt 4.8+ (for Windows (http://www.alphapixel.com/content/download-qt-binaries-free), system libs on linux / osx)
 * A dynamic build of Fabric Core (matching the latest version).
 * The SpliceAPI repository checked out one level above (http://github.com/fabric-engine/SpliceAPI)
 

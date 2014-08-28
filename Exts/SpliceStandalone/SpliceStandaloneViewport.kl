@@ -1,0 +1,227 @@
+require Math;
+require InlineDrawing;
+require Util;
+require SceneLib;
+
+const Integer SpliceStandaloneViewport_Interaction_User = 0;
+const Integer SpliceStandaloneViewport_Interaction_CameraMove = 1;
+
+const Integer SpliceStandaloneViewport_Button_Left = 1;
+const Integer SpliceStandaloneViewport_Button_Right = 2;
+const Integer SpliceStandaloneViewport_Button_Middle = 4;
+
+const Integer SpliceStandaloneViewport_Modifier_Alt = 1;
+const Integer SpliceStandaloneViewport_Modifier_Shift = 2;
+const Integer SpliceStandaloneViewport_Modifier_Control = 4;
+
+object SpliceStandaloneViewport {
+  Size width;
+  Size height;
+  SpliceStandaloneCamera camera;
+  Vec2 lastMousePos;
+  Integer interactionState;
+  DrawContext drawContext;
+  InlineInstance _gridInstance;
+};
+
+function SpliceStandaloneViewport() {
+  this.camera = SpliceStandaloneCamera();
+  this.drawContext = DrawContext();
+  this.drawContext.viewport = InlineViewport();
+  this.drawContext.viewport.camera = InlineCamera();
+  this.interactionState = SpliceStandaloneViewport_Interaction_User;
+}
+
+function SpliceStandaloneViewport.initializeGL!() {
+  glClearColor(0.7, 0.7, 0.7, 1);
+
+  glEnable(GL_COLOR_MATERIAL);
+  glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+  glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
+
+  glShadeModel(GL_SMOOTH);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+  glShadeModel(GL_FLAT);
+  glEnable(GL_DEPTH_TEST);
+  // glEnable(GL_CULL_FACE);
+
+  Integer gl_err = glGetError();
+  glFinish();
+  if (gl_err != GL_NO_ERROR)
+  {
+   report("GL error: " + gl_err);
+   return;
+  }
+
+  // setup the grid
+  InlineDrawing drawing = OGLInlineDrawing_GetInstance();
+
+  InlineDebugShape grid = drawing.registerShape(InlineDebugShape('StandaloneGrid'));
+
+  Scalar scale = 2.0;
+  for(Integer x=-10;x<11;x++)
+    grid.drawLine(Vec3(x, 0, -10) * scale, Vec3(x, 0, 10) * scale);
+  for(Integer z=-10;z<11;z++)
+    grid.drawLine(Vec3(-10, 0, z) * scale, Vec3(10, 0, z) * scale);
+
+  InlineShader shader = drawing.registerShader(OGLFlatShader());
+  InlineMaterial mat = shader.getOrCreateMaterial('grey');
+  mat.setUniform('u_color', Color(0.05, 0.05, 0.05));
+  this._gridInstance = SimpleInlineInstance('StandaloneGrid', drawing.getRoot(), grid, mat);
+}
+
+function SpliceStandaloneViewport.paintGL!() {
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glLoadIdentity();
+
+  // update the inline viewport
+  this.drawContext.viewport.dimensions.x = this.width;
+  this.drawContext.viewport.dimensions.y = this.height;
+  this.drawContext.viewport.camera.isOrthographic = false;
+  this.drawContext.viewport.camera.fovY = this.camera.fovY;
+  this.drawContext.viewport.camera.mat44 = this.camera.getMatrix();
+  this.drawContext.viewport.camera.nearDistance = this.camera.near;
+  this.drawContext.viewport.camera.farDistance = this.camera.far;
+
+  InlineDrawing drawing = OGLInlineDrawing_GetInstance();
+  drawing._draw(this.drawContext);
+}
+
+function SpliceStandaloneViewport.resizeGL!() {
+
+  Scalar aspect = Scalar(this.width) / Scalar(this.height);
+
+  glViewport(0, 0, this.width, this.height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  glMatrixMode(GL_MODELVIEW);
+
+  glLoadIdentity();
+}
+
+function SpliceStandaloneViewport.setTime!(Scalar time) {
+  this.drawContext.time = time;
+}
+
+function SpliceStandaloneViewport.setWireFrame!(Boolean wireFrame) {
+  InlineDrawing drawing = OGLInlineDrawing_GetInstance();
+  for(Size i=0;i<drawing.getShaderCount();i++) {
+    InlineShader shader = drawing.getShader(i);
+    if(shader.getName().startsWith('Selection_'))
+      continue;
+    if(shader.type == OGLWireFrameShader) {
+      OGLWireFrameShader wireFrameShader(shader);
+      wireFrameShader.setWireFrame(wireFrame);
+    }
+  }
+}
+
+function SpliceStandaloneViewport.mousePressEvent!(Integer posX, Integer posY, Integer buttons, Integer modifiers) {
+  this.lastMousePos.x = posX;
+  this.lastMousePos.y = posY;
+}
+
+function SpliceStandaloneViewport.mouseMoveEvent!(Integer posX, Integer posY, Integer buttons, Integer modifiers) {
+  Integer dx = this.lastMousePos.x - posX;
+  Integer dy = this.lastMousePos.y - posY;
+  Vec2 move(Scalar(dx) / Scalar(this.width), Scalar(dy) / Scalar(this.height));
+
+  // Camera motion (alt key pressed)
+  if (modifiers & SpliceStandaloneViewport_Modifier_Alt)
+  {
+    if (buttons & SpliceStandaloneViewport_Button_Left)
+    {
+      this.interactionState = SpliceStandaloneViewport_Interaction_CameraMove;
+      this.camera.orbit(move * 5.0);
+    }
+    if (buttons & SpliceStandaloneViewport_Button_Middle)
+    {
+      this.interactionState = SpliceStandaloneViewport_Interaction_CameraMove;
+      this.camera.pan(move * 12.0);
+    }
+    if (buttons & SpliceStandaloneViewport_Button_Right)
+    {
+      this.interactionState = SpliceStandaloneViewport_Interaction_CameraMove;
+      this.camera.dolly((move.x - move.y) * 0.5);
+    }
+  }
+  else
+    this.interactionState = SpliceStandaloneViewport_Interaction_User;
+
+  this.lastMousePos.x = posX;
+  this.lastMousePos.y = posY;
+}
+
+function SpliceStandaloneViewport.mouseReleaseEvent!(Integer posX, Integer posY, Integer buttons, Integer modifiers) {
+  this.interactionState = SpliceStandaloneViewport_Interaction_User;
+}
+
+function SpliceStandaloneViewport.wheelEvent!(Integer delta) {
+  this.camera.dolly(Scalar(-delta) * 0.0003);
+}
+
+function SpliceStandaloneViewport.frameAll!() {
+  SLScene scene = SLScene_GetInstance();
+  SLContext context = SLContext_GetInstance().getConstantContext();
+  this.camera.frameBBox(scene.getRoot().getLocalBounds(context));
+}
+
+function SpliceStandaloneViewport.frameSelection!() {
+  SLScene scene = SLScene_GetInstance();
+  Ref<SLItem> selection[] = scene.getSelection();
+  if(selection.size() == 0) {
+    this.frameAll();
+    return;
+  }
+
+  SLContext context = SLContext_GetInstance().getConstantContext();
+  Box3 bounds;
+  for(Size i=0;i<selection.size();i++) {
+    if(!selection[i])
+      continue;
+    SLItem item = selection[i];
+
+    String path[] = scene.getPathForItem(context, item).split('/');
+
+
+    SLItem parent = scene.getRoot();
+    Xfo xfo;
+
+    // traverse...
+    for(Size j=1;j<path.size();j++) {
+      SLItem child = null;
+      switch(parent.getItemType())
+      {
+        case SLItem_Group:
+        {
+          SLGroup group(parent);
+          child = group.getChild(context, path[j]);
+          break;
+        }
+        case SLItem_Instance:
+        {
+          SLInstance instance(parent);
+          child = instance.getChild();
+          break;
+        }
+      }
+      if(!child)
+        break;
+      xfo = xfo * child.getTransform(context);
+      parent = child;
+    }
+
+    bounds.merge(xfo.toMat44() * item.getLocalBounds(context));
+  }
+
+  this.camera.frameBBox(bounds);
+
+}
+
+function SpliceStandaloneViewport.toggleGrid!() {
+  this._gridInstance.setActive(!this._gridInstance.isActive());
+}

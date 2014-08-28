@@ -19,13 +19,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * FilePathAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * FilePathAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new FilePathAEWidget(param ,parent);
+	return new FilePathAEWidget(port ,parent);
 }
 
-FilePathAEWidget::FilePathAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+FilePathAEWidget::FilePathAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -33,7 +33,7 @@ FilePathAEWidget::FilePathAEWidget(FabricCore::RTVal param ,QWidget* parent)
   m_listWidget->setLayout(new QGridLayout(m_listWidget));
 	layout()->addWidget(m_listWidget);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -58,12 +58,12 @@ FabricCore::RTVal FilePathAEWidget::getValueArray()
 	return values;
 }
 
-void FilePathAEWidget::setRTVal(FabricCore::RTVal param)
+void FilePathAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("FilePathAEWidget::setRTVal",
+  FABRIC_TRY("FilePathAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("FilePathParameter", 1, &param));
-    setValueArray(m_param.callMethod("FilePath[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -118,7 +118,7 @@ void FilePathAEWidget::uiChanged()
   FABRIC_TRY("FilePathAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 
@@ -151,8 +151,8 @@ void FilePathAEWidget::browseClicked()
     std::string name;
     std::string mode;
     FABRIC_TRY("FilePathAEWidget::browseClicked", 
-      name = m_param.callMethod("String", "getLabel", 0, 0).getStringCString();
-      mode = m_param.callMethod("String", "getMode", 0, 0).getStringCString();
+      name = m_port.getName();
+      mode = m_port.getMode() == FabricSplice::Port_Mode_IN ? "in" : "io";
     );
 
     QString filePath;

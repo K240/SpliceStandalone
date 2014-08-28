@@ -17,13 +17,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * SInt32AEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * SInt32AEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new SInt32AEWidget(param ,parent);
+	return new SInt32AEWidget(port ,parent);
 }
 
-SInt32AEWidget::SInt32AEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+SInt32AEWidget::SInt32AEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -33,7 +33,7 @@ SInt32AEWidget::SInt32AEWidget(FabricCore::RTVal param ,QWidget* parent)
 
   m_validator = new QIntValidator(this);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -57,12 +57,12 @@ FabricCore::RTVal SInt32AEWidget::getValueArray()
 	return values;
 }
 
-void SInt32AEWidget::setRTVal(FabricCore::RTVal param)
+void SInt32AEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("SInt32AEWidget::setRTVal",
+  FABRIC_TRY("SInt32AEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("SInt32Parameter", 1, &param));
-    setValueArray(m_param.callMethod("SInt32[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -81,8 +81,8 @@ void SInt32AEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      int bottom = m_param.callMethod("SInt32", "getMin", 0, 0).getSInt32();
-      int top = m_param.callMethod("SInt32", "getMax", 0, 0).getSInt32();
+      int bottom = 0; // todo
+      int top = 100; // todo
 
       m_validator->setRange(bottom, top);
 
@@ -113,7 +113,7 @@ void SInt32AEWidget::uiChanged()
   FABRIC_TRY("SInt32AEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 

@@ -93,81 +93,31 @@ void AttributeEditorWidget::clearTree()
 
 void AttributeEditorWidget::updateParams()
 {
-  FabricCore::RTVal currentArgs = m_wrapper->getParameters();
-  setParams(currentArgs);
+  setWrapper(m_wrapper);
 }
 
 void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 {
   m_wrapper = wrapper;
   if(m_wrapper)
-    setParams(m_wrapper->getParameters());  
+  {
+  
+  	//update the data.
+  	m_nodeData->setDefaultValues(wrapper->getGraph());
+  	
+  	clearTree();
+  	m_model = new AEModel(m_nodeData , m_treeView);
+  	
+  	m_treeView->setModel(m_model);
+  	m_treeView->resizeColumnToContents( 0 );
+  	
+  	m_treeView->expandRootItem();
+  }
 }
-
-void AttributeEditorWidget::setParams(FabricCore::RTVal newArgs)
-{	
-	//update the data.
-	m_nodeData->setDefaultValues(newArgs);
-	
-	clearTree();
-	m_model = new AEModel(m_nodeData , m_treeView);
-	
-	m_treeView->setModel(m_model);
-	m_treeView->resizeColumnToContents( 0 );
-	
-//	this is currently de-acticated 
-//	addProxyFilter();
-//	connect( m_filterLine	, SIGNAL(textChanged(const QString &)) ,
-//					 this			, SLOT(filterTextChanged(QString )) );
-
-	m_treeView->expandRootItem();
-}
-
-FabricCore::RTVal AttributeEditorWidget::getArgs()
-{
-  FABRIC_TRY_RETURN("AttributeEditorWidget::getArgs", FabricCore::RTVal(),
-
-  	FabricCore::RTVal currentArgs = m_nodeData->getArgs();
-  	FabricCore::RTVal dirtyArgs = m_nodeData->getDirtyArgs();
-    
-    FabricCore::RTVal children = dirtyArgs.callMethod("Parameter[]", "getChildren", 0, 0);
-  	for(size_t i = 0; i < children.getArraySize(); ++i)
-  	{
-      FabricCore::RTVal child = children.getArrayElement(i);
-  		std::string argName = child.callMethod("String", "getName", 0, 0).getStringCString();
-  		WidgetMap::iterator it = m_widgetMap.find(argName);
-  		if ( it != m_widgetMap.end() )
-  		{
-  			AEWidget * wdg = it->second;
-        FabricCore::RTVal newChild = wdg->getRTVal();
-  			currentArgs.callMethod("", "addChild", 1, &newChild );
-  		}
-  		else
-  		{
-  			std::cout << "missing Widget in the MAP ??"<< std::endl;
-  		}
-  	}
-  	dirtyArgs.callMethod("", "clear", 0, 0);
-  	return currentArgs;
-
-  );
-}
-
 
 void AttributeEditorWidget::widgetValueChanged(std::string attributeName)
 {
 	// we need to make sure we keep the internal args in sync 
-	AEWidget * widget = m_widgetMap[attributeName];
-	if (widget)
-	{
-    FABRIC_TRY("AttributeEditorWidget::widgetValueChanged", 
-  
-      FabricCore::RTVal internalRTVal = widget->getRTVal();
-  		m_nodeData->getArgs().callMethod("", "addChild", 1, &internalRTVal);
-
-    );
-	}
-
 	if (m_nodeData->invalidateArg(attributeName))
 	{
 		// we emit an argsChanged so anythings relying on those args
@@ -188,7 +138,7 @@ AEWidget * AttributeEditorWidget::getWidget(std::string argName)
 	return m_widgetMap[argName];
 }
 
-void AttributeEditorWidget::setWidgetRTVal( std::string name, FabricCore::RTVal param , bool silent )
+void AttributeEditorWidget::setWidgetPort( std::string name, FabricSplice::DGPort port , bool silent )
 {
 	// we want to make sure our args stay in sync
   FABRIC_TRY("AttributeEditorWidget::setWidgetRTVal", 
@@ -199,7 +149,7 @@ void AttributeEditorWidget::setWidgetRTVal( std::string name, FabricCore::RTVal 
   	{
   		// we set the internal value silently as no to triger more updates
   		widget->setSilentUpdate(silent);
-  		widget->setRTVal( param );
+  		widget->setPort( port );
   		widget->setSilentUpdate(false);
 
   		// the value changed this might be interesting to other part of the system		
@@ -283,57 +233,33 @@ void AttributeEditorWidget::widgetAdded(AEWidget * widget , std::string name)
   FABRIC_TRY("AttributeEditorWidget::widgetAdded", 
   
     FabricCore::RTVal nameVal = constructStringRTVal(name.c_str());
-  	FabricCore::RTVal value = m_nodeData->getArgs().callMethod("Parameter", "getChildByName", 1, &nameVal);
-  	if(!value.isNullObject())
-  		widget->setRTVal( value );
-
+  	NodeData::DGPortList & args = m_nodeData->getArgs();
+    for(size_t i=0;i<args.size();i++)
+    {
+      if(args[i].getName() != name)
+        continue;
+  		widget->setPort( args[i] );
+    }
   );
 	
 	widget->setSilentUpdate(false);	
 }
 
-FabricCore::RTVal AttributeEditorWidget::getAttributeValue( std::string attributeName )
-{
-  FABRIC_TRY_RETURN("AttributeEditorWidget::getAttributeValue", FabricCore::RTVal(),
-  
-  	FabricCore::RTVal currentArgs = m_nodeData->getArgs();	
-  	FabricCore::RTVal dirtyArgs = m_nodeData->getDirtyArgs();
-    FabricCore::RTVal nameVal = constructStringRTVal(attributeName.c_str());
-  	FabricCore::RTVal param = dirtyArgs.callMethod("Parameter", "getChildByName", 1, &nameVal);
-  	if(!param.isNullObject())	
-  	{
-  		WidgetMap::iterator it = m_widgetMap.find(attributeName);
-      FabricCore::RTVal currentParam = it->second->getRTVal();
-  		currentArgs.callMethod("", "addChild", 1, &currentParam);
-  		dirtyArgs.callMethod("", "deleteChildByName", 1, &nameVal);
-  	}
-
-    return currentArgs.callMethod("Parameter", "getChildByName", 1, &nameVal);
-
-   );
-}
-
-void AttributeEditorWidget::printArgs()
-{
-  FABRIC_TRY("AttributeEditorWidget::printArgs", 
-
-  	getArgs().callMethod("", "printDescription", 0, 0);
-
-  );
-}
-
 void AttributeEditorWidget::updateAllWidget()
 {
-	FabricCore::RTVal args = m_nodeData->getArgs();
-
+  NodeData::DGPortList & args = m_nodeData->getArgs();
 	for (WidgetMap::iterator it = m_widgetMap.begin() ; it != m_widgetMap.end() ; it++ ) 
 	{
     FABRIC_TRY("AttributeEditorWidget::updateAllWidget", 
 
-      FabricCore::RTVal nameVal = constructStringRTVal(it->first.c_str());
-      FabricCore::RTVal child = args.callMethod("Parameter", "getChildByName", 1, &nameVal);
-  		it->second->setRTVal( child );
-
+      std::string name = it->first;
+      for(size_t i=0;i<args.size();i++)
+      {
+        if(args[i].getName() == name)
+        {
+      		it->second->setPort( args[i] );
+        }
+      }
     );
 	}
 }

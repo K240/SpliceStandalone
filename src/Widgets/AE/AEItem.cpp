@@ -5,8 +5,8 @@
 		
 using namespace FabricSplice;
 
-AEItem::AEItem(FabricCore::RTVal param , AEItem *parent)
-	: m_param(param) , m_parentItem(parent)
+AEItem::AEItem(FabricSplice::DGPort port , AEItem *parent)
+	: m_port(port) , m_parentItem(parent)
 {
 }
 
@@ -38,17 +38,17 @@ QVariant AEItem::data(int column , int role) const
 {
 	if (childItems.size() == 0 || role == 999)
 	{
-		QParameter qParam;
-		qParam.parameter = m_param;
+		QDGPort qPort;
+		qPort.port = m_port;
 		QVariant var;
-		var.setValue(qParam);
+		var.setValue(qPort);
 		return var;
 	}
 	else 
 	{
     FABRIC_TRY_RETURN("AEItem::data", QVariant(),
 
-  		std::string name = m_param.callMethod("String", "getLabel", 0, 0).getStringCString();
+  		std::string name = m_port.getName();
 	 	  return QVariant(QString("     ")+QString(name.c_str()).trimmed() );
 
     );
@@ -59,7 +59,7 @@ QVariant AEItem::data(int column) const
 {
   FABRIC_TRY_RETURN("AEItem::data", QVariant(),
 
-    std::string name = m_param.callMethod("String", "getLabel", 0, 0).getStringCString();
+    std::string name = m_port.getName();
     return QVariant(QString("     ")+QString(name.c_str()).trimmed() );
 
   );

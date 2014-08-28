@@ -17,13 +17,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * Vec3AEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * Vec3AEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new Vec3AEWidget(param ,parent);
+	return new Vec3AEWidget(port ,parent);
 }
 
-Vec3AEWidget::Vec3AEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+Vec3AEWidget::Vec3AEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -33,7 +33,7 @@ Vec3AEWidget::Vec3AEWidget(FabricCore::RTVal param ,QWidget* parent)
 
   m_validator = new QDoubleValidator(this);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -64,12 +64,12 @@ FabricCore::RTVal Vec3AEWidget::getValueArray()
 	return values;
 }
 
-void Vec3AEWidget::setRTVal(FabricCore::RTVal param)
+void Vec3AEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("Vec3AEWidget::setRTVal",
+  FABRIC_TRY("Vec3AEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("Vec3Parameter", 1, &param));
-    setValueArray(m_param.callMethod("Vec3[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -78,7 +78,7 @@ void Vec3AEWidget::setValueArray(FabricCore::RTVal values)
 {
   FABRIC_TRY("Vec3AEWidget::setValueArray", 
 
-    unsigned int precision = m_param.callMethod("UInt32", "getPrecision", 0, 0).getUInt32();
+    unsigned int precision = 3;
 
     // clear the layout
     if(values.getArraySize() != m_widgetsX.size())
@@ -136,7 +136,7 @@ void Vec3AEWidget::uiChanged()
   FABRIC_TRY("Vec3AEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 

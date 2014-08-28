@@ -16,13 +16,7 @@ AEModel::AEModel(NodeDataPtr nodeData , QObject *parent)
 	//initialize a root parameter.
   FABRIC_TRY("AEModel::AEModel", 
 
-    std::vector<FabricCore::RTVal> args(3);
-    args[0] = constructStringRTVal("root");
-    args[1] = constructStringRTVal("Root");
-    args[2] = constructStringRTVal("Root GroupParameter");
-
-  	FabricCore::RTVal param = constructObjectRTVal("GroupParameter", args.size(), &args[0]);
-  	m_rootItem = new AEItem(param);
+  	m_rootItem = new AEItem(DGPort());
   	m_treeView = qobject_cast<QTreeView *>(parent);
 
     setupModelData(nodeData);
@@ -195,32 +189,16 @@ int AEModel::rowCount(const QModelIndex &parent) const
 }
 
 
-void AEModel::addModelData(FabricCore::RTVal grpParam , AEItem *parent)
+void AEModel::addModelData(NodeData::DGPortList ports, AEItem *parent)
 {
 
   FABRIC_TRY("AEModel::addModelData",
 
-  	FabricCore::RTVal param = grpParam;
-  	AEItem * thisItem = new AEItem(param, parent);
-  	parent->appendChild(thisItem);
-  	//Add all children.
-  	FabricCore::RTVal children = grpParam.callMethod("Parameter[]", "getChildren", 0, 0);
-  	for(size_t i = 0; i < children.getArraySize(); ++i)
-  	{
-
-      FabricCore::RTVal child = children.getArrayElement(i);
-      if(std::string(child.callMethod("String", "type", 0, 0).getStringCString()) != "GroupParameter")
-      {
-  			AEItem* childItem = new AEItem(child, thisItem);
-  			thisItem->appendChild(childItem);
-  		}
-  		else
-  		{
-  			//go down to the next level.
-        FabricCore::RTVal grpChild = constructObjectRTVal("GroupParameter", 1, &child);
-  			addModelData(grpChild, thisItem);
-  		}
-  	}
+    for(size_t i=0;i<ports.size();i++)
+    {
+  	  AEItem * item = new AEItem(ports[i], parent);
+    	m_rootItem->appendChild(item);
+    }
 
   );
 }

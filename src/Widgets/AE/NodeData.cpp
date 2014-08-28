@@ -18,90 +18,70 @@ NodeData::NodeData()
 {
   FABRIC_TRY("NodeData::NodeData",
 
-    std::vector<FabricCore::RTVal> args(3);
-    args[0] = constructStringRTVal("NodeData");
-    args[1] = constructStringRTVal("Empty NodeData");
-    args[2] = constructStringRTVal("empty nodeData");
-  	m_fullTable = constructObjectRTVal("GroupParameter", args.size(), &args[0]);
+  	m_fullTable = DGPortList();
 
+    m_graph = FabricSplice::DGGraph();
   	m_name = "Empty NodeData";
-  	m_type = "emptyNodeData";
-  	m_description = "Empty Node Data.";
 
-    args[0] = constructStringRTVal("dirtyArgs");
-    args[1] = constructStringRTVal("Dirty Args");
-    args[2] = constructStringRTVal("dirty input arguments");
-    m_dirtyArgs = constructObjectRTVal("GroupParameter", args.size(), &args[0]);
-
-    args[0] = constructStringRTVal("args");
-    args[1] = constructStringRTVal("Args");
-    args[2] = constructStringRTVal("input arguments");
-    m_args = constructObjectRTVal("GroupParameter", args.size(), &args[0]);
+    m_dirtyArgs = DGPortList();
+    m_args = DGPortList();
   );
-	setDefaultValues(m_fullTable);
+	setDefaultValues(m_graph);
 }
 
-NodeData::NodeData( FabricCore::RTVal nodeTable )
+NodeData::NodeData( FabricSplice::DGGraph graph )
 {
   FABRIC_TRY("NodeData::NodeData",
 
-  	m_fullTable		= nodeTable;
-  	m_name 			= nodeTable.callMethod("String", "getLabel", 0, 0).getStringCString();
-  	m_type 			= nodeTable.callMethod("String", "getType", 0, 0).getStringCString();
-  	m_description 	= nodeTable.callMethod("String", "getDescription", 0, 0).getStringCString();
+    m_graph = graph;
 
-    m_name = "Empty NodeData";
-    m_type = "emptyNodeData";
-    m_description = "Empty Node Data.";
+  	m_fullTable		= DGPortList();
 
-    std::vector<FabricCore::RTVal> args(3);
-    args[0] = constructStringRTVal("dirtyArgs");
-    args[1] = constructStringRTVal("Dirty Args");
-    args[2] = constructStringRTVal("dirty input arguments");
-    m_dirtyArgs = constructObjectRTVal("GroupParameter", args.size(), &args[0]);
+    for(unsigned int i=0;i<graph.getDGPortCount();i++)
+    {
+      FabricSplice::DGPort port = graph.getDGPort(i);
+      m_fullTable.push_back(port);
+    }
 
-    args[0] = constructStringRTVal("args");
-    args[1] = constructStringRTVal("Args");
-    args[2] = constructStringRTVal("input arguments");
-    m_args = constructObjectRTVal("GroupParameter", args.size(), &args[0]);
+  	m_name 			= graph.getName();
+
+    m_dirtyArgs = DGPortList();
+    m_args = DGPortList();
   );
 
-	setDefaultValues(m_fullTable);
+	setDefaultValues(graph);
 }
 
 NodeData::~NodeData()
 {
 }
 
-void NodeData::setDefaultValues(FabricCore::RTVal newArgs, bool clearArgs)
+void NodeData::setDefaultValues(FabricSplice::DGGraph graph, bool clearArgs)
 {
   FABRIC_TRY("NodeData::setDefaultValues", 
   
   	if(clearArgs)
   	{
-  		//reset data
-      m_fullTable   = newArgs;
-      m_name      = newArgs.callMethod("String", "getLabel", 0, 0).getStringCString();
-      m_type      = newArgs.callMethod("String", "getType", 0, 0).getStringCString();
-      m_description   = newArgs.callMethod("String", "getDescription", 0, 0).getStringCString();
-  		m_args.callMethod("", "clear", 0, 0);
+      m_graph = graph;
+      m_fullTable   = DGPortList();
+
+      for(unsigned int i=0;i<graph.getDGPortCount();i++)
+      {
+        FabricSplice::DGPort port = graph.getDGPort(i);
+        m_fullTable.push_back(port);
+      }
+
+      m_name      = graph.getName();
+      m_dirtyArgs = DGPortList();
   	}
 
   	//create our default flatten args map.
-    FabricCore::RTVal children = newArgs.callMethod("Parameter[]", "getChildren", 0, 0);
-  	for(size_t i = 0; i < children.getArraySize(); ++i)
-  	{
-      FabricCore::RTVal child = children.getArrayElement(i);
-      if(std::string(child.callMethod("String", "type", 0, 0).getStringCString()) != "GroupParameter")
-  		{
-  			m_args.callMethod("", "addChild", 1, &child);
-  		}
-  		else
-  		{
-        FabricCore::RTVal grpChild = constructObjectRTVal("GroupParameter", 1, &child);
-  			setDefaultValues(grpChild, false);
-  		}
-  	}
+    m_args = DGPortList();
+    for(unsigned int i=0;i<graph.getDGPortCount();i++)
+    {
+      FabricSplice::DGPort port = graph.getDGPort(i);
+      m_args.push_back(port);
+    }
 
   );
 }
@@ -110,26 +90,45 @@ bool NodeData::invalidateArg(const std::string & name )
 {
   FABRIC_TRY_RETURN("NodeData::invalidateArg", false, 
 
-    FabricCore::RTVal nameVal = constructStringRTVal(name.c_str());
-  	FabricCore::RTVal param = m_dirtyArgs.callMethod("Parameter", "getChildByName", 1, &nameVal);
-  	if ( !param.isNullObject() )
-  		return false;
-    FabricCore::RTVal invalidParam = m_args.callMethod("Parameter", "getChildByName", 1, &nameVal);
-    m_dirtyArgs.callMethod("", "addChild", 1, &invalidParam);
+    for(size_t i=0;i<m_dirtyArgs.size();i++)
+    {
+      if(m_dirtyArgs[i].getName() == name)
+        return false;
+    }
+
+    for(size_t i=0;i<m_args.size();i++)
+    {
+      if(m_args[i].getName() == name)
+      {
+        m_dirtyArgs.push_back(m_args[i]);
+        return true;
+      }
+    }
   );
-	return true;
+	return false;
 }
 
 bool NodeData::cleanArg(const std::string & name )
 {
   FABRIC_TRY_RETURN("NodeData::cleanArg", false, 
 
-    FabricCore::RTVal nameVal = constructStringRTVal(name.c_str());
-    FabricCore::RTVal param = m_dirtyArgs.callMethod("Parameter", "getChildByName", 1, &nameVal);
-    if ( param.isNullObject() )
-      return false;
-    m_dirtyArgs.callMethod("", "deleteChildByName", 1, &nameVal);
+    bool found = false;
+    DGPortList newDirtyArgs;
+    for(size_t i=0;i<m_dirtyArgs.size();i++)
+    {
+      if(m_dirtyArgs[i].getName() == name)
+      {
+        found = true;
+      }
+      else
+      {
+        newDirtyArgs.push_back(m_dirtyArgs[i]);
+      }
+    }
 
+    if(!found)
+      return false;
+    m_dirtyArgs = newDirtyArgs;
   );
 	return true;
 	
@@ -139,7 +138,7 @@ void NodeData::cleanAllArgs()
 {
   FABRIC_TRY("NodeData::cleanAllArgs", 
 
-    m_dirtyArgs.callMethod("", "clear", 0, 0);
+    m_dirtyArgs.clear();
 
   );
 }

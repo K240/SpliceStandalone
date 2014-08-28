@@ -140,35 +140,22 @@ void	AETreeView::setWidgetForItem(const QModelIndex & index )
   FABRIC_TRY("AETreeView::setWidgetForItem", 
 
   	QVariant var = index.data(999);
-  	QParameter data = var.value<QParameter>();
-  	FabricCore::RTVal param = data.parameter;
-    if(std::string(param.callMethod("String", "type", 0, 0).getStringCString()) == "GroupParameter")
+  	QDGPort qPort = var.value<QDGPort>();
+    FabricSplice::DGPort port = qPort.port;
+		std::string name = port.getName();
+
+    // filter out time
+    if(name == "time")
+      return;
+
+    AEWidget* newWidget = AEWidgetFactory::widgetFactory().create( port , this );
+    if (!newWidget)
     {
-      FabricCore::RTVal group = constructObjectRTVal("GroupParameter", 1, &param);
-  		std::string initialState = group.callMethod("String", "getInitialState", 0, 0).getStringCString();
-  		if( initialState == "open" )
-  			expand(index);
-  		return;
-  	}
-
-  	//only add widgets that are not hidden parameters.
-  	if(!param.callMethod("Boolean", "isHiddenParam", 0, 0).getBoolean())
-  	{
-  		std::string name = param.callMethod("String", "getName", 0, 0).getStringCString();
-
-      // filter out frame
-      if(name == "frame")
-        return;
-
-      AEWidget* newWidget = AEWidgetFactory::widgetFactory().create( param , this );
-      if (!newWidget)
-      {
-        newWidget = AEWidget::create( param , this );
-        newWidget->missingRegistration();
-      }
-  		emit widgetAdded(newWidget , name);
-  		setIndexWidget( index , newWidget );
-  	}
+      newWidget = AEWidget::create( port , this );
+      newWidget->missingRegistration();
+    }
+		emit widgetAdded(newWidget , name);
+		setIndexWidget( index , newWidget );
 
   );
 }

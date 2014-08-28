@@ -25,8 +25,6 @@ namespace FabricSplice
 
   public slots:
     void compilePressed();
-    void updateParamsPressed();
-    // void savePressed();
 
   private:
 

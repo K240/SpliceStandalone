@@ -10,6 +10,7 @@
 #include "AEItem.h"
 #include <boost/shared_ptr.hpp>
 
+#include <FabricSplice.h>
 
 namespace FabricSplice {
 
@@ -51,7 +52,7 @@ public:
 
 private:
     void setupModelData( NodeDataPtr nodeData  );
-	  void addModelData(FabricCore::RTVal grpParam , AEItem *parent);
+	  void addModelData(std::vector<FabricSplice::DGPort> ports, AEItem *parent);
 		
     AEItem *m_rootItem;
     QTreeView *m_treeView;

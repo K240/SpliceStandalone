@@ -17,13 +17,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * SInt32SliderAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * SInt32SliderAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new SInt32SliderAEWidget(param ,parent);
+	return new SInt32SliderAEWidget(port ,parent);
 }
 
-SInt32SliderAEWidget::SInt32SliderAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+SInt32SliderAEWidget::SInt32SliderAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -35,7 +35,7 @@ SInt32SliderAEWidget::SInt32SliderAEWidget(FabricCore::RTVal param ,QWidget* par
 
   m_validator = new QIntValidator(this);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -59,12 +59,12 @@ FabricCore::RTVal SInt32SliderAEWidget::getValueArray()
 	return values;
 }
 
-void SInt32SliderAEWidget::setRTVal(FabricCore::RTVal param)
+void SInt32SliderAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("SInt32SliderAEWidget::setRTVal",
+  FABRIC_TRY("SInt32SliderAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("SInt32Parameter", 1, &param));
-    setValueArray(m_param.callMethod("SInt32[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -83,8 +83,8 @@ void SInt32SliderAEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      int bottom = m_param.callMethod("SInt32", "getMin", 0, 0).getSInt32();
-      int top = m_param.callMethod("SInt32", "getMax", 0, 0).getSInt32();
+      int bottom = 0; // todo
+      int top = 100; // todo
 
       m_validator->setRange(bottom, top);
 
@@ -125,7 +125,7 @@ void SInt32SliderAEWidget::uiChanged()
   FABRIC_TRY("SInt32SliderAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 

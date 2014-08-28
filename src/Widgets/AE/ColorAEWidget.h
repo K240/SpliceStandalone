@@ -92,17 +92,17 @@ namespace FabricSplice
 
 		public:
 
-			ColorAEWidget( FabricCore::RTVal param ,QWidget* parent = NULL);
+			ColorAEWidget( FabricSplice::DGPort port ,QWidget* parent = NULL);
 			~ColorAEWidget() {}
 
 			// creation function
-			static AEWidget * create( FabricCore::RTVal param ,QWidget* parent = NULL);
+			static AEWidget * create( FabricSplice::DGPort port ,QWidget* parent = NULL);
 
 			// convenient function to get the value of the check as a bool
 			FabricCore::RTVal getValueArray();
 
-      // sets the wrapped RTVal
-      virtual void setRTVal(FabricCore::RTVal param);
+      // sets the wrapped DGPort
+      virtual void setPort(FabricSplice::DGPort port);
 
 		public slots:
 

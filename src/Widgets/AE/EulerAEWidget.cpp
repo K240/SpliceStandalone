@@ -17,13 +17,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * EulerAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * EulerAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new EulerAEWidget(param ,parent);
+	return new EulerAEWidget(port ,parent);
 }
 
-EulerAEWidget::EulerAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+EulerAEWidget::EulerAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -33,7 +33,7 @@ EulerAEWidget::EulerAEWidget(FabricCore::RTVal param ,QWidget* parent)
 
   m_validator = new QDoubleValidator(this);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -64,12 +64,12 @@ FabricCore::RTVal EulerAEWidget::getValueArray()
 	return values;
 }
 
-void EulerAEWidget::setRTVal(FabricCore::RTVal param)
+void EulerAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("EulerAEWidget::setRTVal",
+  FABRIC_TRY("EulerAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("EulerParameter", 1, &param));
-    setValueArray(m_param.callMethod("Euler[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -78,7 +78,7 @@ void EulerAEWidget::setValueArray(FabricCore::RTVal values)
 {
   FABRIC_TRY("EulerAEWidget::setValueArray", 
 
-    unsigned int precision = m_param.callMethod("UInt32", "getPrecision", 0, 0).getUInt32();
+    unsigned int precision = 3;
 
     // clear the layout
     if(values.getArraySize() != m_widgetsX.size())
@@ -136,7 +136,7 @@ void EulerAEWidget::uiChanged()
   FABRIC_TRY("EulerAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 

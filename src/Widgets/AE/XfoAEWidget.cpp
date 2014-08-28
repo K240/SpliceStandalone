@@ -17,13 +17,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * XfoAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * XfoAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new XfoAEWidget(param ,parent);
+	return new XfoAEWidget(port ,parent);
 }
 
-XfoAEWidget::XfoAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+XfoAEWidget::XfoAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -33,7 +33,7 @@ XfoAEWidget::XfoAEWidget(FabricCore::RTVal param ,QWidget* parent)
 
   m_validator = new QDoubleValidator(this);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -87,12 +87,12 @@ FabricCore::RTVal XfoAEWidget::getValueArray()
 	return values;
 }
 
-void XfoAEWidget::setRTVal(FabricCore::RTVal param)
+void XfoAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("XfoAEWidget::setRTVal",
+  FABRIC_TRY("XfoAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("XfoParameter", 1, &param));
-    setValueArray(m_param.callMethod("Xfo[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -206,7 +206,7 @@ void XfoAEWidget::uiChanged()
   FABRIC_TRY("XfoAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 

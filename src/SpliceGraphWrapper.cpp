@@ -6,37 +6,26 @@
 
 using namespace FabricSplice;
 
-SpliceGraphWrapper::SpliceGraphWrapper(const std::string & klCodePath) :
-	m_klScriptPath(klCodePath) , m_operatorIsValid(false)
+SpliceGraphWrapper::SpliceGraphWrapper(const std::string & path) :
+	m_path(path) , m_operatorIsValid(false)
 { 
   FABRIC_TRY("SpliceGraphWrapper::SpliceGraphWrapper", 
 
-    m_dgGraph = DGGraph(klCodePath.c_str());
-    std::string opName = "wrapperOp";
-
-    // Create a Fabric DGNode
-    m_dgGraph.constructDGNode("SpliceGraphWrapper");
-    m_dgNode = m_dgGraph.getDGNode("SpliceGraphWrapper");
-    
-    m_dgGraph.addDGNodeMember("params", "GroupParameter", FabricCore::Variant(), "SpliceGraphWrapper", "");
-    m_dgGraph.addDGPort("params", "params", Port_Mode_IO, "SpliceGraphWrapper", true);
-
-    m_dgGraph.constructKLOperator(opName.c_str(), "", opName.c_str(), "SpliceGraphWrapper");
-
+    m_dgGraph = DGGraph(path.c_str());
     m_isTimeDependent = -1;
 
   );
 
-  if (m_klScriptPath != "")
+  if (m_path != "")
   {
-    reloadCode();
+    reload();
   }
 
 }
 
 std::string SpliceGraphWrapper::name()
 {
-	return m_klScriptPath;
+	return m_path;
 }
 
 void SpliceGraphWrapper::transferParamsToSplice(FabricCore::RTVal params)
@@ -44,49 +33,18 @@ void SpliceGraphWrapper::transferParamsToSplice(FabricCore::RTVal params)
 	m_dgGraph.getDGPort("params").setRTVal(params);
 }
 
-FabricCore::RTVal SpliceGraphWrapper::getParameters()
+FabricSplice::DGGraph SpliceGraphWrapper::getGraph()
 {
-	return m_dgGraph.getDGPort("params").getRTVal();
+  return m_dgGraph;
 }
 
-bool SpliceGraphWrapper::reloadParams()
+bool SpliceGraphWrapper::reload()
 {
-
-  FABRIC_TRY_RETURN("SpliceGraphWrapper::reloadParams", false, 
-  
-	  //we clear the paramters , they will be reloaded next time the scripts run
-  	FabricCore::RTVal params = getParameters();
-    params.callMethod("", "clear", 0, 0);
-  	m_dgGraph.getDGPort("params").setRTVal(params);
-    m_dgGraph.evaluate();
-
-    m_isTimeDependent = -1;
-
-  );
-	
-	return true;
-}
-
-
-bool SpliceGraphWrapper::reloadCode()
-{
-	std::string opName = "wrapperOp";
-	std::cout << "Loading KL from " << m_klScriptPath << std::endl;
-	std::ifstream t(m_klScriptPath.c_str());
-	std::string opCode((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-	// Inject the entry operator code template: 
-	opCode += "operator " + opName + "(io GroupParameter params)";
-	opCode += "{";
-	opCode += "  if(params.getChildren().size() == 0) {";
-	opCode += "    params = getParams();";
-	opCode += "  }";
-  opCode += "  compute(params);";
-	opCode += "}";
-
-  FABRIC_TRY_RETURN("SpliceGraphWrapper::reloadCode", false,
+  FABRIC_TRY_RETURN("SpliceGraphWrapper::reload", false,
 
 		// build the operator
-		m_dgGraph.setKLOperatorSourceCode(opName.c_str(), opCode.c_str(), opName.c_str());
+		m_dgGraph.clear();
+    m_dgGraph.loadFromFile(m_path.c_str());
 
   );
 
@@ -101,12 +59,12 @@ bool SpliceGraphWrapper::isValid() const
 	return m_operatorIsValid;
 }
 
-void SpliceGraphWrapper::setKlPath(const std::string & path)
+void SpliceGraphWrapper::setPath(const std::string & path)
 {
-	m_klScriptPath = path;
-	if (m_klScriptPath != "")
+	m_path = path;
+	if (m_path != "")
 	{
-		reloadCode();
+		reload();
 	}
 }
 

@@ -103,23 +103,25 @@ bool AEWidgetFactory::isRegistered(const std::string& typeName )
 	return m_widgetCreatorMap.find(typeName) != m_widgetCreatorMap.end();
 }
 
-AEWidget * AEWidgetFactory::create(FabricCore::RTVal param ,
+AEWidget * AEWidgetFactory::create(FabricSplice::DGPort port,
 									QWidget* parent ) const
 {
   FABRIC_TRY_RETURN("AEWidgetFactory::create", NULL,
 
     registerWidgetTypes();
 
-    std::string paramType = param.callMethod("String", "getType", 0, 0).getStringCString();
+    std::string dataType = port.getDataType();
+    if(port.isArray())
+      dataType += "[]";
 
-  	TypeMap::const_iterator it = m_widgetCreatorMap.find(paramType);
+  	TypeMap::const_iterator it = m_widgetCreatorMap.find(dataType);
   	if(it == m_widgetCreatorMap.end())
   	{
-  		std::cout << "No registration exists for type " << paramType << std::endl;
+  		std::cout << "No registration exists for type " << dataType << std::endl;
   		return NULL;
   	}
   	else
-  		return (it->second)(param , parent );
+  		return (it->second)(port , parent );
 
   );
 }														

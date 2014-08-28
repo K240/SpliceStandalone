@@ -13,9 +13,9 @@
 
 using namespace FabricSplice;
 
-AEWidget * AEWidget::create( FabricCore::RTVal param ,QWidget* parent)
+AEWidget * AEWidget::create( FabricSplice::DGPort port ,QWidget* parent)
 {
-	return new AEWidget(param ,parent);
+	return new AEWidget(port ,parent);
 }
 
 QString AEWidget::getLabel()
@@ -24,7 +24,7 @@ QString AEWidget::getLabel()
 
   FABRIC_TRY_RETURN("AEWidget::getLabel", QString(),
   
-    labelText = m_param.callMethod("String", "getLabel", 0, 0).getStringCString();
+    labelText = m_port.getName();
 
   );
 	
@@ -41,7 +41,7 @@ QHBoxLayout * AEWidget::createLabelControlLayout()
 
   FABRIC_TRY_IGNORE("AEWidget::createLabelControlLayout",
 	
-    m_defaultLabelWidget->setToolTip( m_param.callMethod("String", "getDescription", 0, 0).getStringCString() );
+    m_defaultLabelWidget->setToolTip( "" );
 
   );
 	m_defaultLabelWidget->setMinimumWidth( 50 );
@@ -68,15 +68,15 @@ void AEWidget::missingRegistration()
 	setLayout(layout);
 }
 
-AEWidget::AEWidget(FabricCore::RTVal param , QWidget* parent)
+AEWidget::AEWidget(FabricSplice::DGPort port , QWidget* parent)
     : QWidget(parent)
 {
 		
-	m_param  = param;
+	m_port = port;
 
   FABRIC_TRY("AEWidget::AEWidget", 
     
-    m_attributeName = m_param.callMethod("String", "getName", 0, 0).getStringCString();
+    m_attributeName = m_port.getName();
   
   );
 	

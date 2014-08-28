@@ -34,11 +34,11 @@ namespace FabricSplice
 		//! @name Constructors , Desctructors and Create function
 		//@{
 		/// default contructor take the descriotion info from the Inputs VariantMap 	
-		AEWidget( FabricCore::RTVal param , QWidget* parent = NULL);
+		AEWidget( FabricSplice::DGPort port , QWidget* parent = NULL);
 		~AEWidget();
 
 		/// creation function
-		static AEWidget * create( FabricCore::RTVal param, QWidget* parent = NULL);
+		static AEWidget * create( FabricSplice::DGPort port, QWidget* parent = NULL);
 		//@}
 
 		//! @name Default Layout and Label Utils
@@ -52,11 +52,11 @@ namespace FabricSplice
 		/// to access the QLabel to change a little its text or shape
 		QLabel * getDefaultLabel() {return m_defaultLabelWidget;}
     
-    // returns the wrapped rtval
-    FabricCore::RTVal getRTVal() { return m_param; }
+    // returns the wrapped Port
+    FabricSplice::DGPort getPort() { return m_port; }
 
-    // sets the wrapped RTVal
-    virtual void setRTVal(FabricCore::RTVal param) { m_param = param; }
+    // sets the wrapped Port
+    virtual void setPort(FabricSplice::DGPort port) { m_port = port; }
 
 		//@}
 
@@ -121,7 +121,7 @@ namespace FabricSplice
 		std::string m_attributeName;
 		
 		// parameter that contains all specific information.
-		FabricCore::RTVal m_param;
+		FabricSplice::DGPort m_port;
 		
 		/// a preset table if a single level 
 		/// variant map of string=value

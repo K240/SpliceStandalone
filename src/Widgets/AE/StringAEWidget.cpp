@@ -18,13 +18,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * StringAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * StringAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new StringAEWidget(param ,parent);
+	return new StringAEWidget(port ,parent);
 }
 
-StringAEWidget::StringAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+StringAEWidget::StringAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -32,7 +32,7 @@ StringAEWidget::StringAEWidget(FabricCore::RTVal param ,QWidget* parent)
   m_listWidget->setLayout(new QVBoxLayout(m_listWidget));
 	layout()->addWidget(m_listWidget);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -56,12 +56,12 @@ FabricCore::RTVal StringAEWidget::getValueArray()
 	return values;
 }
 
-void StringAEWidget::setRTVal(FabricCore::RTVal param)
+void StringAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("StringAEWidget::setRTVal",
+  FABRIC_TRY("StringAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("StringParameter", 1, &param));
-    setValueArray(m_param.callMethod("String[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -106,7 +106,7 @@ void StringAEWidget::uiChanged()
   FABRIC_TRY("StringAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 

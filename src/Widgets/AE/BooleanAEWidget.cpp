@@ -17,13 +17,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * BooleanAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * BooleanAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new BooleanAEWidget(param ,parent);
+	return new BooleanAEWidget(port ,parent);
 }
 
-BooleanAEWidget::BooleanAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+BooleanAEWidget::BooleanAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -31,7 +31,7 @@ BooleanAEWidget::BooleanAEWidget(FabricCore::RTVal param ,QWidget* parent)
   m_listWidget->setLayout(new QVBoxLayout(m_listWidget));
 	layout()->addWidget(m_listWidget);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -53,12 +53,12 @@ FabricCore::RTVal BooleanAEWidget::getValueArray()
 	return values;
 }
 
-void BooleanAEWidget::setRTVal(FabricCore::RTVal param)
+void BooleanAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("BooleanAEWidget::setRTVal",
+  FABRIC_TRY("BooleanAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("BooleanParameter", 1, &param));
-    setValueArray(m_param.callMethod("Boolean[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -105,7 +105,7 @@ void BooleanAEWidget::uiChanged()
   FABRIC_TRY("BooleanAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
   AEWidget::uiChanged();

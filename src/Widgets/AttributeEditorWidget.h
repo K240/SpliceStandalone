@@ -80,16 +80,9 @@ namespace FabricSplice
 			/// set the internal nodegraph from the groups
 			void setParams(FabricCore::RTVal nodeData);
 			
-			/// this is a convenience function that give you direct 
-			/// access to the internal args table 
-			FabricCore::RTVal getArgs();
-			
 			/// update the args and also make sure the widget is reflecting this new value 
-			void setWidgetRTVal( std::string name, FabricCore::RTVal value, bool silent = true );
+			void setWidgetPort( std::string name, FabricSplice::DGPort port, bool silent = true );
 			
-			/// get the internal Value for the Attribute name 'attributeName'
-			FabricCore::RTVal getAttributeValue(std::string attributeName);
-	
 			/// initial brute for setting up the widget to their current value
 			void updateAllWidget();
 	
@@ -119,8 +112,6 @@ namespace FabricSplice
       void updateParams();
 
 		public slots:
-			/// debug function to print the containt of m_nodeData
-			void printArgs();
 			
 			/// this get hock up with the Tree so we can track AEWidget
 			virtual void widgetAdded(AEWidget * widget , std::string name);

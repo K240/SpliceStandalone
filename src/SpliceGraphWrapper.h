@@ -25,13 +25,10 @@ namespace FabricSplice
   	SpliceGraphWrapper(const std::string & klCodePath = "");
   	~SpliceGraphWrapper() {};
 
-  	void setKlPath(const std::string & path);
-  	std::string klPath() { return m_klScriptPath; }
+  	void setPath(const std::string & path);
+  	std::string getPath() { return m_path; }
 
-  	bool reloadCode();
-
-  	// the parameters in the code changes they need to be reloaded
-  	bool reloadParams();
+  	bool reload();
 
     // returns true if this node uses the frame param
     bool isTimeDependent();
@@ -40,7 +37,7 @@ namespace FabricSplice
   	std::string name();
   	
     // returns the GroupParameter
-  	FabricCore::RTVal getParameters();
+  	FabricSplice::DGGraph getGraph();
 
   	// set the Parameter to the Port node
   	void transferParamsToSplice(FabricCore::RTVal params);
@@ -59,7 +56,7 @@ namespace FabricSplice
 
   	FabricCore::Client m_client;
 
-  	std::string m_klScriptPath;
+  	std::string m_path;
   	bool m_operatorIsValid;
     int m_isTimeDependent;
 

@@ -17,13 +17,13 @@
 
 using namespace FabricSplice;
 
-AEWidget * Float32SliderAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * Float32SliderAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new Float32SliderAEWidget(param ,parent);
+	return new Float32SliderAEWidget(port ,parent);
 }
 
-Float32SliderAEWidget::Float32SliderAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+Float32SliderAEWidget::Float32SliderAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -35,7 +35,7 @@ Float32SliderAEWidget::Float32SliderAEWidget(FabricCore::RTVal param ,QWidget* p
 
   m_validator = new DoubleValidator(this);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -59,12 +59,12 @@ FabricCore::RTVal Float32SliderAEWidget::getValueArray()
 	return values;
 }
 
-void Float32SliderAEWidget::setRTVal(FabricCore::RTVal param)
+void Float32SliderAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("Float32SliderAEWidget::setRTVal",
+  FABRIC_TRY("Float32SliderAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("Float32Parameter", 1, &param));
-    setValueArray(m_param.callMethod("Float32[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -73,7 +73,7 @@ void Float32SliderAEWidget::setValueArray(FabricCore::RTVal values)
 {
   FABRIC_TRY("Float32SliderAEWidget::setValueArray", 
 
-    unsigned int precision = m_param.callMethod("UInt32", "getPrecision", 0, 0).getUInt32();
+    unsigned int precision = 3;
 
     // clear the layout
     if(values.getArraySize() != m_widgets.size())
@@ -85,8 +85,8 @@ void Float32SliderAEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      float bottom = m_param.callMethod("Float32", "getMin", 0, 0).getFloat32();
-      float top = m_param.callMethod("Float32", "getMax", 0, 0).getFloat32();
+      float bottom = 0.0; // todo
+      float top = 1.0; // todo
 
       m_validator->setRange(bottom, top, precision);
       m_validator->setNotation(QDoubleValidator::StandardNotation);
@@ -128,7 +128,7 @@ void Float32SliderAEWidget::uiChanged()
   FABRIC_TRY("Float32SliderAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
 

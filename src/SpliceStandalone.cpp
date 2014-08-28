@@ -167,7 +167,7 @@ void SpliceStandalone::clearAll()
 void SpliceStandalone::reloadAll()
 {
 	for (unsigned int i=0; i < m_wrappers.size(); i++ )
-		m_wrappers[i]->reloadCode();
+		m_wrappers[i]->reload();
 }
 
 void SpliceStandalone::needRedraw()

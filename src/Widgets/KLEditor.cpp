@@ -43,10 +43,6 @@ KLEditor::KLEditor(QWidget* pParent)
 	klButtons->layout()->addWidget(compileButton);
   connect(compileButton, SIGNAL(clicked()), this, SLOT(compilePressed()));
 
-	QPushButton * updateParams = new QPushButton("UpdateParams", klButtons);
-	klButtons->layout()->addWidget(updateParams);
-  connect(updateParams, SIGNAL(clicked()), this, SLOT(updateParamsPressed()));
-
 	// QPushButton* saveButton = new QPushButton("Export", klButtons);
 	// klButtons->layout()->addWidget(saveButton);
 
@@ -66,43 +62,35 @@ void KLEditor::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 
   if(m_editorWrapper)
   {
-  	std::ifstream t(m_editorWrapper->klPath().c_str());
-	  std::string wrapperCode((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-  	m_sourceCodeWidget->setSourceCode("render", wrapperCode);
+    FabricSplice::DGGraph graph = wrapper->getGraph();
+    std::string opName = graph.getKLOperatorName(0);
+    std::string entry = graph.getKLOperatorEntry(opName.c_str());
+    std::string code = graph.getKLOperatorSourceCode(opName.c_str());
+  	m_sourceCodeWidget->setSourceCode(entry, code);
   }
 }
 
 void KLEditor::saveEditorCodeToDisk(std::string path)
 {
-    std::string code = m_sourceCodeWidget->getSourceCode();
-
-    FILE * file = fopen(path.c_str(), "wb");
-    fwrite(code.c_str(), code.length(), 1, file);
-    fclose(file);
+  if(m_editorWrapper)
+  {
+    FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
+    graph.saveToFile(path.c_str());
+  }
 }
 
 void KLEditor::compilePressed()
 {
-	std::string currentPath = m_editorWrapper->klPath();
-	saveEditorCodeToDisk(currentPath);
-	m_editorWrapper->reloadCode();
-	
-	SpliceStandalone * app = static_cast<SpliceStandalone *>(QApplication::instance());
-	app->needRedraw();
-
+  if(m_editorWrapper)
+  {
+  	std::string currentPath = m_editorWrapper->getPath();
+  	saveEditorCodeToDisk(currentPath);
+  	m_editorWrapper->reload();
+  	
+  	SpliceStandalone * app = static_cast<SpliceStandalone *>(QApplication::instance());
+  	app->needRedraw();
+  }
 }
-
-void KLEditor::updateParamsPressed()
-{
-	std::string currentPath = m_editorWrapper->klPath();
-	saveEditorCodeToDisk(currentPath);
-  m_editorWrapper->reloadCode();
-	m_editorWrapper->reloadParams();
-	
-	SpliceStandalone * app = static_cast<SpliceStandalone *>(QApplication::instance());
-	app->updateParams();
-}
-
 
 // void KLEditor::savePressed()
 // {

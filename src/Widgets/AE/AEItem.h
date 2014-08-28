@@ -3,14 +3,15 @@
 
 #include <QtCore/QVariant>
 #include <FabricCore.h>
+#include <FabricSplice.h>
 
-/// \brief Simple wrapper around a FabricCore::RTVal to expose it to Qt
-struct QParameter
+/// \brief Simple wrapper around a FabricSplice::DGPort to expose it to Qt
+struct QDGPort
 {
-	FabricCore::RTVal parameter;
+	FabricSplice::DGPort port;
 };
 
-Q_DECLARE_METATYPE(QParameter)
+Q_DECLARE_METATYPE(QDGPort)
 
 namespace FabricSplice
 {
@@ -19,7 +20,7 @@ namespace FabricSplice
   class AEItem
   {
   	public:
-  		AEItem(FabricCore::RTVal param , AEItem *parent = 0);
+  		AEItem(FabricSplice::DGPort port, AEItem *parent = 0);
   		virtual ~AEItem();
   	
   		void appendChild(AEItem *child);
@@ -33,12 +34,12 @@ namespace FabricSplice
   		int row() const;
   		AEItem *parent();
   	
-  		FabricCore::RTVal getParameter() { return m_param;}
+  		FabricSplice::DGPort getPort() { return m_port;}
   		
   	private:
   		QList<AEItem*> childItems;
   		
-  		mutable FabricCore::RTVal m_param;
+  		mutable FabricSplice::DGPort m_port;
   		AEItem *m_parentItem;
   	
   };

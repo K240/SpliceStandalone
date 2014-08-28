@@ -13,6 +13,7 @@
 #include <QtGui/QVBoxLayout>
 
 #include <FabricCore.h>
+#include <FabricSplice.h>
 
 namespace FabricSplice
 {
@@ -30,7 +31,7 @@ namespace FabricSplice
 		public:
 
 			/// definition of the Creation function pointer used in the factory table
-			typedef AEWidget * (*AEWidgetCreateFn)(FabricCore::RTVal param , QWidget* parent);
+			typedef AEWidget * (*AEWidgetCreateFn)(FabricSplice::DGPort port , QWidget* parent);
 
 			//! @name Constructors / Destructors
 			//@{
@@ -53,7 +54,7 @@ namespace FabricSplice
 			//@}
 			
 			/// create a class, given its name. NULL if not registered
-			AEWidget * create( FabricCore::RTVal param ,
+			AEWidget * create( FabricSplice::DGPort port ,
 							   QWidget* parent = NULL ) const;
 
       static const AEWidgetFactory & widgetFactory();

@@ -80,13 +80,13 @@ void ColorPickerWidget::colorDialogRejected()
   m_dialogRejected = true;
 }
 
-AEWidget * ColorAEWidget::create( FabricCore::RTVal param , QWidget* parent)
+AEWidget * ColorAEWidget::create( FabricSplice::DGPort port , QWidget* parent)
 {
-	return new ColorAEWidget(param ,parent);
+	return new ColorAEWidget(port ,parent);
 }
 
-ColorAEWidget::ColorAEWidget(FabricCore::RTVal param ,QWidget* parent)
-    : AEWidget(param,parent)
+ColorAEWidget::ColorAEWidget(FabricSplice::DGPort port ,QWidget* parent)
+    : AEWidget(port ,parent)
 {
 	setLayout(createLabelControlLayout());
 
@@ -94,7 +94,7 @@ ColorAEWidget::ColorAEWidget(FabricCore::RTVal param ,QWidget* parent)
   m_listWidget->setLayout(new QVBoxLayout(m_listWidget));
 	layout()->addWidget(m_listWidget);
 
-  setRTVal(param);
+  setPort(port);
 			
 	// QSpacerItem * spacerItem = new QSpacerItem(20,1,QSizePolicy::Expanding , QSizePolicy::Minimum);
 	// list->addItem(spacerItem);
@@ -125,12 +125,12 @@ FabricCore::RTVal ColorAEWidget::getValueArray()
 	return values;
 }
 
-void ColorAEWidget::setRTVal(FabricCore::RTVal param)
+void ColorAEWidget::setPort(FabricSplice::DGPort port)
 {
-  FABRIC_TRY("ColorAEWidget::setRTVal",
+  FABRIC_TRY("ColorAEWidget::setPort",
   
-    AEWidget::setRTVal(constructObjectRTVal("ColorParameter", 1, &param));
-    setValueArray(m_param.callMethod("Color[]", "getValueArray", 0, 0));
+    AEWidget::setPort(port);
+    setValueArray(port.getRTVal());
 
   );
 }
@@ -180,7 +180,7 @@ void ColorAEWidget::uiChanged()
   FABRIC_TRY("ColorAEWidget::uiChanged", 
 
     FabricCore::RTVal values = getValueArray();
-    m_param.callMethod("", "setValueArray", 1, &values);
+    m_port.setRTVal(values);
 
   );
   AEWidget::uiChanged();

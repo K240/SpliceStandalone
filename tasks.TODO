@@ -1,0 +1,5 @@
+ ☐ evalcontext needs to be setup
+ ☐ parameters are not showing up in AE
+ ☐ reloading doesn't work
+ ☐ persistence in splice should not persist members anymore, just ports (to avoid confusion)
+ ☐ all sample scripts should use drawinghandle

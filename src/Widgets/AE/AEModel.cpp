@@ -20,7 +20,6 @@ AEModel::AEModel(NodeDataPtr nodeData , QObject *parent)
   	m_treeView = qobject_cast<QTreeView *>(parent);
 
     setupModelData(nodeData);
-
   );
 }
 
@@ -176,28 +175,31 @@ QModelIndex AEModel::parent(const QModelIndex &index) const
 
 int AEModel::rowCount(const QModelIndex &parent) const
 {
-    AEItem *parentItem;
-    if (parent.column() > 0)
+  AEItem *parentItem;
+  if (!parent.isValid())
+  {
+    parentItem = m_rootItem;
+  }
+  else
+  {
+    if(parent.column() > 0)
         return 0;
+    parentItem = static_cast<AEItem*>(parent.internalPointer());
+  }
 
-    if (!parent.isValid())
-        parentItem = m_rootItem;
-    else
-        parentItem = static_cast<AEItem*>(parent.internalPointer());
-
-    return parentItem->childCount();
+  return parentItem->childCount();
 }
 
 
 void AEModel::addModelData(NodeData::DGPortList ports, AEItem *parent)
 {
-
   FABRIC_TRY("AEModel::addModelData",
 
     for(size_t i=0;i<ports.size();i++)
     {
-  	  AEItem * item = new AEItem(ports[i], parent);
-    	m_rootItem->appendChild(item);
+      AEItem * item = new AEItem(ports[i], parent);
+      printf("AEModel::addModelData %s\n", ports[i].getName());
+    	parent->appendChild(item);
     }
 
   );

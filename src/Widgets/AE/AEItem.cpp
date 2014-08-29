@@ -49,6 +49,8 @@ QVariant AEItem::data(int column , int role) const
     FABRIC_TRY_RETURN("AEItem::data", QVariant(),
 
   		std::string name = m_port.getName();
+      if(name == "")
+        name = "Ports";
 	 	  return QVariant(QString("     ")+QString(name.c_str()).trimmed() );
 
     );
@@ -60,6 +62,8 @@ QVariant AEItem::data(int column) const
   FABRIC_TRY_RETURN("AEItem::data", QVariant(),
 
     std::string name = m_port.getName();
+    if(name == "")
+      name = "Ports";
     return QVariant(QString("     ")+QString(name.c_str()).trimmed() );
 
   );

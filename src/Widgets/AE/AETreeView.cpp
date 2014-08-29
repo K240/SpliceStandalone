@@ -98,8 +98,10 @@ AETreeView::AETreeView(QWidget * parent)
 void	AETreeView::createChildWidget(const QModelIndex & index )
 {
 	int numChildren = model()->rowCount(index);
+  printf("AETreeView::createChildWidget numChildren %d\n", numChildren);
 	for (int i= 0;i< numChildren ;i++)
 	{
+    printf("AETreeView::createChildWidget item %d\n", i);
 		setWidgetForItem( model()->index(i,0 , index ) );
 	}
 	resizeColumnToContents( 0 );
@@ -143,6 +145,8 @@ void	AETreeView::setWidgetForItem(const QModelIndex & index )
   	QDGPort qPort = var.value<QDGPort>();
     FabricSplice::DGPort port = qPort.port;
 		std::string name = port.getName();
+
+    printf("AETreeView::setWidgetForItem %s\n", name.c_str());
 
     // filter out time
     if(name == "time")

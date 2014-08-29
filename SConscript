@@ -26,14 +26,17 @@ qtFlags = {
   ]
 }
 
+libSuffix = ''
+if FABRIC_BUILD_OS == 'Windows':
+  libSuffix = '4'
+if FABRIC_BUILD_TYPE == 'Debug':
+  libSuffix = 'd' + libSuffix
 if FABRIC_BUILD_OS == 'Windows':
   qtFlags['CCFLAGS'] = ['/DNT_PLUGIN']
-  qtFlags['LIBS'] = ['QtCore4', 'QtGui4', 'QtOpenGL4']
 elif buildOS == 'Linux':
   qtFlags['CCFLAGS'] = ['-DLINUX']
-  qtFlags['LIBS'] = ['QtCore', 'QtGui', 'QtOpenGL']
-else:
-  qtFlags['LIBS'] = ['QtCore', 'QtGui', 'QtOpenGL']
+
+qtFlags['LIBS'] = ['QtCore'+libSuffix, 'QtGui'+libSuffix, 'QtOpenGL'+libSuffix]
 
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LIBS = ['advapi32', 'shell32', 'user32', 'Opengl32', 'glu32', 'gdi32'])
@@ -97,14 +100,14 @@ if FABRIC_BUILD_OS == 'Windows':
 
 # install the extensions
 for ext in ['SpliceStandalone']:
-  extFiles = env.GlobRecursive(os.path.join(env.Dir('#').abspath, 'Exts', ext, '*.kl'))
-  extFiles += env.GlobRecursive(os.path.join(env.Dir('#').abspath, 'Exts', ext, '*.json'))
+  extFiles = env.GlobRecursive(os.path.join(env.Dir('.').abspath, 'Exts', ext, '*.kl'))
+  extFiles += env.GlobRecursive(os.path.join(env.Dir('.').abspath, 'Exts', ext, '*.json'))
   for extFile in extFiles:
-    absFile = extFile.abspath
-    relFile = os.path.relpath(absFile, env.Dir('#').srcnode().abspath)
+    absFile = extFile.srcnode().abspath
+    relFile = os.path.relpath(absFile, env.Dir('.').srcnode().abspath)
     absFile = os.path.join(STAGE_DIR.abspath, relFile)
     standaloneFiles.append(env.Install(os.path.split(absFile)[0], extFile))
-standaloneFiles.append(env.Install(STAGE_DIR.Dir('images'), env.Glob(os.path.join(env.Dir('#').abspath, 'images', '*'))))
+standaloneFiles.append(env.Install(STAGE_DIR.Dir('images'), env.Glob(os.path.join(env.Dir('.').abspath, 'images', '*'))))
   
 # install PDB files on windows
 if FABRIC_BUILD_TYPE == 'Debug' and FABRIC_BUILD_OS == 'Windows':

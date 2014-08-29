@@ -54,31 +54,18 @@ bool AEWidgetFactory::registerStandardType() const
 	if (!m_standardTypeRegistered)
 	{
 		registerType("Boolean", BooleanAEWidget::create );
-		registerType("Boolean[]", BooleanAEWidget::create );
     registerType("Float32", Float32AEWidget::create );
-    registerType("Float32[]", Float32AEWidget::create );
     registerType("Float32Slider", Float32SliderAEWidget::create );
-    registerType("Float32Slider[]", Float32SliderAEWidget::create );
     registerType("SInt32", SInt32AEWidget::create );
-    registerType("SInt32[]", SInt32AEWidget::create );
     registerType("SInt32Slider", SInt32SliderAEWidget::create );
-    registerType("SInt32Slider[]", SInt32SliderAEWidget::create );
     registerType("Vec2", Vec2AEWidget::create );
-    registerType("Vec2[]", Vec2AEWidget::create );
     registerType("Vec3", Vec3AEWidget::create );
-    registerType("Vec3[]", Vec3AEWidget::create );
     registerType("Euler", EulerAEWidget::create );
-    registerType("Euler[]", EulerAEWidget::create );
     registerType("Mat44", Mat44AEWidget::create );
-    registerType("Mat44[]", Mat44AEWidget::create );
     registerType("Xfo", XfoAEWidget::create );
-    registerType("Xfo[]", XfoAEWidget::create );
     registerType("Color", ColorAEWidget::create );
-    registerType("Color[]", ColorAEWidget::create );
-    registerType("String"     , StringAEWidget::create );
-    registerType("String[]"   , StringAEWidget::create );
-    registerType("FilePath"     , FilePathAEWidget::create );
-    registerType("FilePath[]"   , FilePathAEWidget::create );
+    registerType("String", StringAEWidget::create );
+    registerType("FilePath", FilePathAEWidget::create );
 
 		m_standardTypeRegistered = true;
 		return true;
@@ -111,8 +98,8 @@ AEWidget * AEWidgetFactory::create(FabricSplice::DGPort port,
     registerWidgetTypes();
 
     std::string dataType = port.getDataType();
-    if(port.isArray())
-      dataType += "[]";
+
+    printf("AEWidgetFactory::create: dataType %s\n", dataType.c_str());
 
   	TypeMap::const_iterator it = m_widgetCreatorMap.find(dataType);
   	if(it == m_widgetCreatorMap.end())

@@ -34,22 +34,14 @@ NodeData::NodeData( FabricSplice::DGGraph graph )
   FABRIC_TRY("NodeData::NodeData",
 
     m_graph = graph;
-
-  	m_fullTable		= DGPortList();
-
-    for(unsigned int i=0;i<graph.getDGPortCount();i++)
-    {
-      FabricSplice::DGPort port = graph.getDGPort(i);
-      m_fullTable.push_back(port);
-    }
-
   	m_name 			= graph.getName();
-
+    m_fullTable   = DGPortList();
     m_dirtyArgs = DGPortList();
     m_args = DGPortList();
+
   );
 
-	setDefaultValues(graph);
+	setDefaultValues(graph, true);
 }
 
 NodeData::~NodeData()
@@ -63,24 +55,25 @@ void NodeData::setDefaultValues(FabricSplice::DGGraph graph, bool clearArgs)
   	if(clearArgs)
   	{
       m_graph = graph;
+      m_name      = graph.getName();
       m_fullTable   = DGPortList();
 
       for(unsigned int i=0;i<graph.getDGPortCount();i++)
       {
         FabricSplice::DGPort port = graph.getDGPort(i);
+        if(std::string(port.getName()) == "time")
+          continue;
         m_fullTable.push_back(port);
       }
 
-      m_name      = graph.getName();
       m_dirtyArgs = DGPortList();
   	}
 
   	//create our default flatten args map.
     m_args = DGPortList();
-    for(unsigned int i=0;i<graph.getDGPortCount();i++)
+    for(size_t i=0;i<m_fullTable.size();i++)
     {
-      FabricSplice::DGPort port = graph.getDGPort(i);
-      m_args.push_back(port);
+      m_args.push_back(m_fullTable[i]);
     }
 
   );

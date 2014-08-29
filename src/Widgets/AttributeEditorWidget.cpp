@@ -98,6 +98,7 @@ void AttributeEditorWidget::updateParams()
 
 void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 {
+  printf("AttributeEditorWidget::setWrapper\n");
   m_wrapper = wrapper;
   if(m_wrapper)
   {

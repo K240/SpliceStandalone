@@ -7,7 +7,7 @@ import os, sys, platform, copy
 Import('parentEnv', 'FABRIC_CAPI_DIR', 'FABRIC_SPLICE_VERSION', 'STAGE_DIR', 'FABRIC_BUILD_OS', 'FABRIC_BUILD_TYPE', 'QT_INCLUDE_DIR', 'QT_LIB_DIR', 'sharedCapiFlags', 'spliceFlags')
 
 # create the build environment
-env = Environment(tools=['default','qt'], QTDIR=os.path.split(QT_INCLUDE_DIR)[0], QT_LIB='')
+env = Environment(tools=['default','qt'], QTDIR=os.path.split(QT_INCLUDE_DIR)[0], QT_LIB='', ENV=parentEnv['ENV'])
 
 env.Append(CCFLAGS = parentEnv['CCFLAGS'])
 env.Append(LINKFLAGS = parentEnv['LINKFLAGS'])

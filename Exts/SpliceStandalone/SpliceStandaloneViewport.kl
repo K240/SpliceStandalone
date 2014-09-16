@@ -86,7 +86,7 @@ function SpliceStandaloneViewport.paintGL!() {
   this.drawContext.viewport.camera.farDistance = this.camera.far;
 
   InlineDrawing drawing = OGLInlineDrawing_GetInstance();
-  drawing._draw(this.drawContext);
+  drawing.draw(this.drawContext);
 }
 
 function SpliceStandaloneViewport.resizeGL!() {

@@ -6,8 +6,12 @@ import os, sys, platform, copy
 
 Import('parentEnv', 'FABRIC_CAPI_DIR', 'FABRIC_SPLICE_VERSION', 'STAGE_DIR', 'FABRIC_BUILD_OS', 'FABRIC_BUILD_TYPE', 'QT_INCLUDE_DIR', 'QT_LIB_DIR', 'sharedCapiFlags', 'spliceFlags')
 
+qtDir = os.path.split(QT_INCLUDE_DIR)[0]
+if FABRIC_BUILD_OS == 'Linux':
+  qtDir = '/usr'
+
 # create the build environment
-env = Environment(tools=['default','qt'], QTDIR=os.path.split(QT_INCLUDE_DIR)[0], QT_LIB='', ENV=parentEnv['ENV'])
+env = Environment(tools=['default','qt'], QTDIR=qtDir, QT_LIB='', ENV=parentEnv['ENV'])
 
 env.Append(CCFLAGS = parentEnv['CCFLAGS'])
 env.Append(LINKFLAGS = parentEnv['LINKFLAGS'])
@@ -29,17 +33,19 @@ qtFlags = {
 libSuffix = ''
 if FABRIC_BUILD_OS == 'Windows':
   libSuffix = '4'
-if FABRIC_BUILD_TYPE == 'Debug':
-  libSuffix = 'd' + libSuffix
+  if FABRIC_BUILD_TYPE == 'Debug':
+    libSuffix = 'd' + libSuffix
 if FABRIC_BUILD_OS == 'Windows':
   qtFlags['CCFLAGS'] = ['/DNT_PLUGIN']
-elif buildOS == 'Linux':
+elif FABRIC_BUILD_OS == 'Linux':
   qtFlags['CCFLAGS'] = ['-DLINUX']
 
 qtFlags['LIBS'] = ['QtCore'+libSuffix, 'QtGui'+libSuffix, 'QtOpenGL'+libSuffix]
 
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LIBS = ['advapi32', 'shell32', 'user32', 'Opengl32', 'glu32', 'gdi32'])
+elif FABRIC_BUILD_OS == 'Linux':
+  env.Append(LIBS = ['boost_program_options'])
 
 env.MergeFlags(qtFlags)
 env.MergeFlags(sharedCapiFlags)
@@ -74,9 +80,13 @@ def GlobRecursive(self, pattern, useBuildDir = False):
 env.AddMethod(GlobRecursive)
 
 sources = env.Glob('src/*.cpp')
-sources += env.GlobRecursive('src/Widgets/*.cpp', useBuildDir = True)
+sources += env.Glob('src/Widgets/*.cpp')
+sources += env.Glob('src/Widgets/AE/*.cpp')
 
 target = 'FabricSpliceStandalone' + FABRIC_SPLICE_VERSION
+
+if FABRIC_BUILD_OS == 'Linux':
+  env[ '_LIBFLAGS' ] = '-Wl,--start-group ' + env['_LIBFLAGS'] + ' -Wl,--end-group'
 
 standaloneFiles = []
 standaloneApp = env.Program(target, sources)

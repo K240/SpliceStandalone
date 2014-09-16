@@ -1,7 +1,7 @@
 #ifndef __UTILITY_H__
 #define __UTILITY_H__
 
-#include <QtCore/QString.h>
+#include <QtCore/QString>
 #include <string>
 
 inline std::string stdStringFromQString(const QString & input)

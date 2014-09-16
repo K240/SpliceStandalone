@@ -87,6 +87,8 @@ target = 'FabricSpliceStandalone' + FABRIC_SPLICE_VERSION
 
 if FABRIC_BUILD_OS == 'Linux':
   env[ '_LIBFLAGS' ] = '-Wl,--start-group ' + env['_LIBFLAGS'] + ' -Wl,--end-group'
+elif FABRIC_BUILD_OS == 'Windows':
+  env.Append(LINKFLAGS = ['/STACK:67108864'])
 
 standaloneFiles = []
 standaloneApp = env.Program(target, sources)

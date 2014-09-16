@@ -143,9 +143,9 @@ void SpliceStandalone::constructFabricClient()
       return;
     }
 
-    client.loadExtension("SpliceStandalone");
-    client.loadExtension("InlineDrawing");
-    client.loadExtension("Animation");
+    client.loadExtension("SpliceStandalone", false);
+    client.loadExtension("InlineDrawing", false);
+    client.loadExtension("Animation", false);
 
   );
 }

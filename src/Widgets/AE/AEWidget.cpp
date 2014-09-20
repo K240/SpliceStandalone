@@ -83,15 +83,7 @@ AEWidget::AEWidget(FabricSplice::DGPort port , QWidget* parent)
 	// will be null in case no preset is setup .
 	//m_presets		= m_description->getEntry<VariantMap>( "presets" );
 	
-	m_lock = false;
-	m_connected = false;
-
   setMinimumWidth(40);
-}
-
-void AEWidget::switchLock()
-{
-	setLocked(!m_lock);
 }
 
 void AEWidget::setEnabledOnChildren(bool value)
@@ -112,56 +104,10 @@ void AEWidget::setEnabledOnChildren(bool value)
 	}
 }
 
-void AEWidget::setLocked(bool value)
-{
-	m_lock = value;
-	QPalette myPalette;
-	if (m_lock)
-	{
-		setStyleSheet(
-					"QSpinBox , QDoubleSpinBox , QLineEdit , QComboBox , QSlider "
-					"{ background-color: #666666 ; color:#999999; } "
-					"QCheckBox { color: #444444;}"
-					);
-		setEnabledOnChildren(false);
-	}
-	else
-	{
-		setStyleSheet("");
-		setEnabledOnChildren(true);
-	}
-	setPalette(myPalette);
-	
-}
-
-void AEWidget::setConnected(bool value)
-{
-	m_connected = value;
-	if (m_connected)
-	{
-		setStyleSheet(
-					"QSpinBox , QDoubleSpinBox , QLineEdit , QComboBox , QSlider "
-					"{ background-color: #de727a ; color:#666666; } "
-					"QCheckBox { color: #de727a;}"
-					);
-	}
-	else
-	{
-		setStyleSheet("");
-	}
-	
-}
-
 void AEWidget::contextMenuEvent(QContextMenuEvent *event)
 {
 	QMenu * menu = new QMenu(this);
 
-	QString lockLabel = m_lock ? "Unlock Attribute" : "Lock Attribute";
-	
-	QAction * lock = new QAction( lockLabel ,this);
-	connect(lock , SIGNAL(triggered()) , this , SLOT(switchLock()) );
-	menu->addAction(lock);
-	
 	// add the action to the menu .
 	// this is potentialy empty 
 	menu->addActions(m_extraMenuActions);
@@ -195,3 +141,41 @@ void AEWidget::uiChanged()
 	}	
 }
 
+FabricCore::RTVal AEWidget::rtValConstruct(const char * dataType)
+{
+  if(m_port.isArray())
+  {
+    std::string arrayType = dataType;
+    arrayType += "[]";
+    return constructRTVal(arrayType.c_str());
+  }
+  return constructRTVal(dataType);
+}
+
+unsigned int AEWidget::rtValGetArraySize(const FabricCore::RTVal value)
+{
+  if(value.isArray())
+    return value.getArraySize();
+  return 1;
+}
+
+FabricCore::RTVal AEWidget::rtValGetArrayElement(const FabricCore::RTVal value, unsigned int index)
+{
+  if(value.isArray())
+    return value.getArrayElement(index);
+  return value;
+}
+
+void AEWidget::rtValSetArraySize(FabricCore::RTVal & value, unsigned int size)
+{
+  if(value.isArray())
+    value.setArraySize(size);
+}
+
+void AEWidget::rtValSetArrayElement(FabricCore::RTVal & value, unsigned int index, const FabricCore::RTVal & element)
+{
+  if(value.isArray())
+    value.setArrayElement(index, element);
+  else
+    value = element;
+}

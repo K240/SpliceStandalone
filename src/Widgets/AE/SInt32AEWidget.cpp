@@ -46,12 +46,12 @@ FabricCore::RTVal SInt32AEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("SInt32AEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("SInt32[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("SInt32");
+    rtValSetArraySize(values, m_widgets.size());
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
     {
       QString value = m_widgets[i]->text();
-      values.setArrayElement(i, constructSInt32RTVal(value.toInt()));
+      rtValSetArrayElement(values, i, constructSInt32RTVal(value.toInt()));
     }
   );
 	return values;
@@ -72,7 +72,7 @@ void SInt32AEWidget::setValueArray(FabricCore::RTVal values)
   FABRIC_TRY("SInt32AEWidget::setValueArray", 
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -86,8 +86,8 @@ void SInt32AEWidget::setValueArray(FabricCore::RTVal values)
 
       m_validator->setRange(bottom, top);
 
-      m_widgets.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgets.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgets[i] = new ItemWidget(m_listWidget);
         m_widgets[i]->setFont( getApplicationWidgetFont() );
@@ -99,9 +99,9 @@ void SInt32AEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      int value = values.getArrayElement(i).getSInt32();
+      int value = rtValGetArrayElement(values, i).getSInt32();
       m_widgets[i]->setText(QString::number(value));
     }
 

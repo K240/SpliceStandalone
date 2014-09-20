@@ -45,12 +45,12 @@ FabricCore::RTVal StringAEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("StringAEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("String[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("String");
+    rtValSetArraySize(values, m_widgets.size());
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
     {
       std::string value = stdStringFromQString(m_widgets[i]->text());
-      values.setArrayElement(i, constructStringRTVal(value.c_str()));
+      rtValSetArrayElement(values, i, constructStringRTVal(value.c_str()));
     }
   );
 	return values;
@@ -71,7 +71,7 @@ void StringAEWidget::setValueArray(FabricCore::RTVal values)
   FABRIC_TRY("StringAEWidget::setValueArray", 
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -80,8 +80,8 @@ void StringAEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      m_widgets.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgets.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgets[i] = new ItemWidget(m_listWidget);
         m_widgets[i]->setFont( getApplicationWidgetFont() );
@@ -92,9 +92,9 @@ void StringAEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      std::string value = values.getArrayElement(i).getStringCString();
+      std::string value = rtValGetArrayElement(values, i).getStringCString();
       m_widgets[i]->setText(value.c_str());
     }
 

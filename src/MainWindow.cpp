@@ -342,7 +342,7 @@ void MainWindow::redraw()
 void MainWindow::loadScript()
 { 
   std::string fileName = stdStringFromQString(QFileDialog::getOpenFileName(this,
-       tr("KL File"), "$HOME", tr("KL Files (*.kl)")));
+       tr("Splice File"), "$HOME", tr("Splice Files (*.splice)")));
 
   if(fileName.length() == 0)
     return;
@@ -368,7 +368,6 @@ void MainWindow::clearAll()
     m_logWidgets[i]->clear();
   for(size_t i=0;i<m_attributeEditors.size();i++)
   {
-    m_attributeEditors[i]->clearAllWidgets();
     m_attributeEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
   }
   for(size_t i=0;i<m_sourceEditors.size();i++)

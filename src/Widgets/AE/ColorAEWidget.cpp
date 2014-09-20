@@ -107,8 +107,8 @@ FabricCore::RTVal ColorAEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("ColorAEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("Color[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("Color");
+    rtValSetArraySize(values, m_widgets.size());
 
     std::vector<FabricCore::RTVal> args(4);
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
@@ -118,7 +118,7 @@ FabricCore::RTVal ColorAEWidget::getValueArray()
       args[2] = constructFloat32RTVal(m_widgets[i]->getB());
       args[3] = constructFloat32RTVal(m_widgets[i]->getA());
       FabricCore::RTVal color = constructRTVal("Color", 4, &args[0]);
-      values.setArrayElement(i, color);
+      rtValSetArrayElement(values, i, color);
     }
 
   );
@@ -140,7 +140,7 @@ void ColorAEWidget::setValueArray(FabricCore::RTVal values)
   FABRIC_TRY("ColorAEWidget::setValueArray", 
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -149,8 +149,8 @@ void ColorAEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      m_widgets.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgets.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgets[i] = new ItemWidget(m_listWidget);
         m_widgets[i]->setFont( getApplicationWidgetFont() );
@@ -161,9 +161,9 @@ void ColorAEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      FabricCore::RTVal color = values.getArrayElement(i);
+      FabricCore::RTVal color = rtValGetArrayElement(values, i);
       m_widgets[i]->set(
         color.maybeGetMember("r").getFloat32(),
         color.maybeGetMember("g").getFloat32(),

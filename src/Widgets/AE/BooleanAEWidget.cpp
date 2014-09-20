@@ -44,10 +44,10 @@ FabricCore::RTVal BooleanAEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("BooleanAEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("Boolean[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("Boolean");
+    rtValSetArraySize(values, m_widgets.size());
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
-      values.setArrayElement(i, constructBooleanRTVal(m_widgets[i]->checkState() == Qt::Checked));
+      rtValSetArrayElement(values, i, constructBooleanRTVal(m_widgets[i]->checkState() == Qt::Checked));
 
   );
 	return values;
@@ -68,7 +68,7 @@ void BooleanAEWidget::setValueArray(FabricCore::RTVal values)
   FABRIC_TRY("BooleanAEWidget::setValueArray", 
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -77,8 +77,8 @@ void BooleanAEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      m_widgets.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgets.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgets[i] = new ItemWidget(m_listWidget);
         m_widgets[i]->setFont( getApplicationWidgetFont() );
@@ -89,9 +89,9 @@ void BooleanAEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      if ( values.getArrayElement(i).getBoolean() )
+      if ( rtValGetArrayElement(values, i).getBoolean() )
         m_widgets[i]->setCheckState( Qt::Checked );
       else
         m_widgets[i]->setCheckState( Qt::Unchecked );

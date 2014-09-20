@@ -46,12 +46,12 @@ FabricCore::RTVal Float32AEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("Float32AEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("Float32[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("Float32");
+    rtValSetArraySize(values, m_widgets.size());
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
     {
       QString value = m_widgets[i]->text();
-      values.setArrayElement(i, constructFloat32RTVal(value.toFloat()));
+      rtValSetArrayElement(values, i, constructFloat32RTVal(value.toFloat()));
     }
   );
 	return values;
@@ -74,7 +74,7 @@ void Float32AEWidget::setValueArray(FabricCore::RTVal values)
     unsigned int precision = 3;
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -89,8 +89,8 @@ void Float32AEWidget::setValueArray(FabricCore::RTVal values)
       m_validator->setRange(bottom, top, precision);
       m_validator->setNotation(QDoubleValidator::StandardNotation);
 
-      m_widgets.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgets.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgets[i] = new ItemWidget(m_listWidget);
         m_widgets[i]->setFont( getApplicationWidgetFont() );
@@ -102,9 +102,9 @@ void Float32AEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      float value = values.getArrayElement(i).getFloat32();
+      float value = rtValGetArrayElement(values, i).getFloat32();
       m_widgets[i]->setText(QString::number(value, 'g', precision));
     }
 

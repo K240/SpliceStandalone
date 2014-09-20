@@ -46,8 +46,8 @@ FabricCore::RTVal Mat44AEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("Mat44AEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("Mat44[]");
-    values.setArraySize(m_widgetsRow0X.size());
+  	values = rtValConstruct("Mat44");
+    rtValSetArraySize(values, m_widgetsRow0X.size());
 
     std::vector<FabricCore::RTVal> args(16);
     for (unsigned int i = 0; i < m_widgetsRow0X.size(); ++i)
@@ -84,7 +84,7 @@ FabricCore::RTVal Mat44AEWidget::getValueArray()
       args[13] = constructFloat32RTVal(row3Y.toFloat());
       args[14] = constructFloat32RTVal(row3Z.toFloat());
       args[15] = constructFloat32RTVal(row3T.toFloat());
-      values.setArrayElement(i, constructRTVal("Mat44", 16, &args[0]));
+      rtValSetArrayElement(values, i, constructRTVal("Mat44", 16, &args[0]));
     }
   );
 	return values;
@@ -107,7 +107,7 @@ void Mat44AEWidget::setValueArray(FabricCore::RTVal values)
     unsigned int precision = 3;
 
     // clear the layout
-    if(values.getArraySize() != m_widgetsRow0X.size())
+    if(rtValGetArraySize(values) != m_widgetsRow0X.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -121,23 +121,23 @@ void Mat44AEWidget::setValueArray(FabricCore::RTVal values)
 
       QGridLayout * layout = (QGridLayout*)m_listWidget->layout();
 
-      m_widgetsRow0X.resize(values.getArraySize());
-      m_widgetsRow0Y.resize(values.getArraySize());
-      m_widgetsRow0Z.resize(values.getArraySize());
-      m_widgetsRow0T.resize(values.getArraySize());
-      m_widgetsRow1X.resize(values.getArraySize());
-      m_widgetsRow1Y.resize(values.getArraySize());
-      m_widgetsRow1Z.resize(values.getArraySize());
-      m_widgetsRow1T.resize(values.getArraySize());
-      m_widgetsRow2X.resize(values.getArraySize());
-      m_widgetsRow2Y.resize(values.getArraySize());
-      m_widgetsRow2Z.resize(values.getArraySize());
-      m_widgetsRow2T.resize(values.getArraySize());
-      m_widgetsRow3X.resize(values.getArraySize());
-      m_widgetsRow3Y.resize(values.getArraySize());
-      m_widgetsRow3T.resize(values.getArraySize());
-      m_widgetsRow3Z.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgetsRow0X.resize(rtValGetArraySize(values));
+      m_widgetsRow0Y.resize(rtValGetArraySize(values));
+      m_widgetsRow0Z.resize(rtValGetArraySize(values));
+      m_widgetsRow0T.resize(rtValGetArraySize(values));
+      m_widgetsRow1X.resize(rtValGetArraySize(values));
+      m_widgetsRow1Y.resize(rtValGetArraySize(values));
+      m_widgetsRow1Z.resize(rtValGetArraySize(values));
+      m_widgetsRow1T.resize(rtValGetArraySize(values));
+      m_widgetsRow2X.resize(rtValGetArraySize(values));
+      m_widgetsRow2Y.resize(rtValGetArraySize(values));
+      m_widgetsRow2Z.resize(rtValGetArraySize(values));
+      m_widgetsRow2T.resize(rtValGetArraySize(values));
+      m_widgetsRow3X.resize(rtValGetArraySize(values));
+      m_widgetsRow3Y.resize(rtValGetArraySize(values));
+      m_widgetsRow3T.resize(rtValGetArraySize(values));
+      m_widgetsRow3Z.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgetsRow0X[i] = new ItemWidget(m_listWidget);
         m_widgetsRow0X[i]->setFont( getApplicationWidgetFont() );
@@ -225,9 +225,9 @@ void Mat44AEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      FabricCore::RTVal value = values.getArrayElement(i);
+      FabricCore::RTVal value = rtValGetArrayElement(values, i);
       FabricCore::RTVal row0 = value.maybeGetMember("row0");
       FabricCore::RTVal row1 = value.maybeGetMember("row1");
       FabricCore::RTVal row2 = value.maybeGetMember("row2");

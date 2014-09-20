@@ -75,17 +75,8 @@ namespace FabricSplice
       /// return a the widget for that name 
       AEWidget * getWidget(std::string argName);
       
-      /// set the locked state of a named Widget in the AE
-      void setWidgetLocked(std::string name , bool value);
-
-      /// set the connected state of a named Widget in the AE
-      void setWidgetConnected(std::string name , bool value);
-
 		public slots:
 			
-			/// this get hock up with the Tree so we can track AEWidget
-			virtual void widgetAdded(AEWidget * widget , std::string name);
-	
 			/// this need to connected to the uiChanged methods of AEWidget
 			/// added to the tree 
 			virtual void widgetValueChanged(std::string attributeName);

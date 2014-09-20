@@ -46,8 +46,8 @@ FabricCore::RTVal XfoAEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("XfoAEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("Xfo[]");
-    values.setArraySize(m_widgetsTrX.size());
+  	values = rtValConstruct("Xfo");
+    rtValSetArraySize(values, m_widgetsTrX.size());
 
     std::vector<FabricCore::RTVal> args(3);
     for (unsigned int i = 0; i < m_widgetsTrX.size(); ++i)
@@ -81,7 +81,7 @@ FabricCore::RTVal XfoAEWidget::getValueArray()
       args[1] = ori;
       args[2] = scl;
 
-      values.setArrayElement(i, constructRTVal("Xfo", 3, &args[0]));
+      rtValSetArrayElement(values, i, constructRTVal("Xfo", 3, &args[0]));
     }
   );
 	return values;
@@ -104,7 +104,7 @@ void XfoAEWidget::setValueArray(FabricCore::RTVal values)
     unsigned int precision = 3;
 
     // clear the layout
-    if(values.getArraySize() != m_widgetsTrX.size())
+    if(rtValGetArraySize(values) != m_widgetsTrX.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -118,16 +118,16 @@ void XfoAEWidget::setValueArray(FabricCore::RTVal values)
 
       QGridLayout * layout = (QGridLayout*)m_listWidget->layout();
 
-      m_widgetsTrX.resize(values.getArraySize());
-      m_widgetsTrY.resize(values.getArraySize());
-      m_widgetsTrZ.resize(values.getArraySize());
-      m_widgetsRotX.resize(values.getArraySize());
-      m_widgetsRotY.resize(values.getArraySize());
-      m_widgetsRotZ.resize(values.getArraySize());
-      m_widgetsSclX.resize(values.getArraySize());
-      m_widgetsSclY.resize(values.getArraySize());
-      m_widgetsSclZ.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgetsTrX.resize(rtValGetArraySize(values));
+      m_widgetsTrY.resize(rtValGetArraySize(values));
+      m_widgetsTrZ.resize(rtValGetArraySize(values));
+      m_widgetsRotX.resize(rtValGetArraySize(values));
+      m_widgetsRotY.resize(rtValGetArraySize(values));
+      m_widgetsRotZ.resize(rtValGetArraySize(values));
+      m_widgetsSclX.resize(rtValGetArraySize(values));
+      m_widgetsSclY.resize(rtValGetArraySize(values));
+      m_widgetsSclZ.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgetsTrX[i] = new ItemWidget(m_listWidget);
         m_widgetsTrX[i]->setFont( getApplicationWidgetFont() );
@@ -180,9 +180,9 @@ void XfoAEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      FabricCore::RTVal value = values.getArrayElement(i);
+      FabricCore::RTVal value = rtValGetArrayElement(values, i);
       FabricCore::RTVal tr = value.maybeGetMember("tr");
       FabricCore::RTVal ori = value.maybeGetMember("ori");
       FabricCore::RTVal euler = ori.callMethod("Vec3", "toEulerAngles", 0, 0);

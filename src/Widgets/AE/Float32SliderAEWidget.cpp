@@ -48,12 +48,12 @@ FabricCore::RTVal Float32SliderAEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("Float32SliderAEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("Float32[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("Float32");
+    rtValSetArraySize(values, m_widgets.size());
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
     {
       QString value = m_widgets[i]->text();
-      values.setArrayElement(i, constructFloat32RTVal(value.toFloat()));
+      rtValSetArrayElement(values, i, constructFloat32RTVal(value.toFloat()));
     }
   );
 	return values;
@@ -76,7 +76,7 @@ void Float32SliderAEWidget::setValueArray(FabricCore::RTVal values)
     unsigned int precision = 3;
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -93,9 +93,9 @@ void Float32SliderAEWidget::setValueArray(FabricCore::RTVal values)
 
       QGridLayout * layout = (QGridLayout*)m_listWidget->layout();
 
-      m_sliders.resize(values.getArraySize());
-      m_widgets.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_sliders.resize(rtValGetArraySize(values));
+      m_widgets.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_sliders[i] = new QSlider(m_listWidget);
         m_sliders[i]->setRange(bottom * 1000.0f, top * 1000.0f);
@@ -114,9 +114,9 @@ void Float32SliderAEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      float value = values.getArrayElement(i).getFloat32();
+      float value = rtValGetArrayElement(values, i).getFloat32();
       m_widgets[i]->setText(QString::number(value, 'g', precision));
     }
 

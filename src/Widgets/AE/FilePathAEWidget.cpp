@@ -46,13 +46,13 @@ FabricCore::RTVal FilePathAEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("FilePathAEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("FilePath[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("FilePath");
+    rtValSetArraySize(values, m_widgets.size());
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
     {
       std::string path = stdStringFromQString(m_widgets[i]->text());
       FabricCore::RTVal pathVal = constructStringRTVal(path.c_str());
-      values.setArrayElement(i, constructObjectRTVal("FilePath", 1, &pathVal));
+      rtValSetArrayElement(values, i, constructObjectRTVal("FilePath", 1, &pathVal));
     }
   );
 	return values;
@@ -73,7 +73,7 @@ void FilePathAEWidget::setValueArray(FabricCore::RTVal values)
   FABRIC_TRY("FilePathAEWidget::setValueArray", 
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -84,9 +84,9 @@ void FilePathAEWidget::setValueArray(FabricCore::RTVal values)
 
       QGridLayout * layout = (QGridLayout *)m_listWidget->layout();
 
-      m_widgets.resize(values.getArraySize());
-      m_buttons.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgets.resize(rtValGetArraySize(values));
+      m_buttons.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgets[i] = new ItemWidget(m_listWidget);
         m_widgets[i]->setFont( getApplicationWidgetFont() );
@@ -103,9 +103,9 @@ void FilePathAEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      FabricCore::RTVal pathObj = values.getArrayElement(i);
+      FabricCore::RTVal pathObj = rtValGetArrayElement(values, i);
       FabricCore::RTVal pathStr = pathObj.callMethod("String", "string", 0, 0);
       m_widgets[i]->setText(pathStr.getStringCString());
     }

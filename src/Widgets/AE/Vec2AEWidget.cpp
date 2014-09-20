@@ -46,8 +46,8 @@ FabricCore::RTVal Vec2AEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("Vec2AEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("Vec2[]");
-    values.setArraySize(m_widgetsX.size());
+  	values = rtValConstruct("Vec2");
+    rtValSetArraySize(values, m_widgetsX.size());
 
     std::vector<FabricCore::RTVal> args(2);
     for (unsigned int i = 0; i < m_widgetsX.size(); ++i)
@@ -56,7 +56,7 @@ FabricCore::RTVal Vec2AEWidget::getValueArray()
       QString y = m_widgetsY[i]->text();
       args[0] = constructFloat32RTVal(x.toFloat());
       args[1] = constructFloat32RTVal(y.toFloat());
-      values.setArrayElement(i, constructRTVal("Vec2", 2, &args[0]));
+      rtValSetArrayElement(values, i, constructRTVal("Vec2", 2, &args[0]));
     }
   );
 	return values;
@@ -79,7 +79,7 @@ void Vec2AEWidget::setValueArray(FabricCore::RTVal values)
     unsigned int precision = 3;
 
     // clear the layout
-    if(values.getArraySize() != m_widgetsX.size())
+    if(rtValGetArraySize(values) != m_widgetsX.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -93,9 +93,9 @@ void Vec2AEWidget::setValueArray(FabricCore::RTVal values)
 
       QGridLayout * layout = (QGridLayout*)m_listWidget->layout();
 
-      m_widgetsX.resize(values.getArraySize());
-      m_widgetsY.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_widgetsX.resize(rtValGetArraySize(values));
+      m_widgetsY.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_widgetsX[i] = new ItemWidget(m_listWidget);
         m_widgetsX[i]->setFont( getApplicationWidgetFont() );
@@ -112,9 +112,9 @@ void Vec2AEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      FabricCore::RTVal value = values.getArrayElement(i);
+      FabricCore::RTVal value = rtValGetArrayElement(values, i);
       m_widgetsX[i]->setText(QString::number(value.maybeGetMember("x").getFloat32(), 'g', precision));
       m_widgetsY[i]->setText(QString::number(value.maybeGetMember("y").getFloat32(), 'g', precision));
     }

@@ -56,21 +56,6 @@ namespace FabricSplice
     // sets the wrapped Port
     virtual void setPort(FabricSplice::DGPort port) { m_port = port; }
 
-		//@}
-
-		//! @name Locking and Connection Accessors
-		//@{
-		/// set the lock state ,this will also update the pallete to the lock state
-		void setLocked(bool value);
-		/// simply return the lock state value
-		bool isLocked() {return m_lock;};
-
-		/// set the lock state ,this will also update the pallete to the lock state
-		void setConnected(bool value);
-		/// simply return the lock state value
-		bool isConnected() {return m_connected;};
-		//@}
-
 		/// we can create a empty on for missing registration
 		void missingRegistration();
 
@@ -96,12 +81,6 @@ namespace FabricSplice
 		/// call when the internal data as change invalidating any cache in the editor
 		void valueChanged();
 		
-		/// set the value when the user select an entry in the menu
-		//void setPreset(Muggins::VariantPtr value);
-		
-		/// switch the lock state (on become off etc...)
-		void switchLock();
-		
 	protected:
 		/// the menu in case there is presets
 		void contextMenuEvent(QContextMenuEvent *event);
@@ -109,6 +88,21 @@ namespace FabricSplice
 		/// will go though each widget children that is not
 		/// m_defaultLabelWidget and set its enable state to value
 		void setEnabledOnChildren(bool value);
+
+    /// build the correct RTVal based on array or non array
+    FabricCore::RTVal rtValConstruct(const char * dataType);
+
+    /// returns the array size of an rtval
+    unsigned int rtValGetArraySize(const FabricCore::RTVal value);
+
+    /// returns an element of an rtval array
+    FabricCore::RTVal rtValGetArrayElement(const FabricCore::RTVal value, unsigned int index);
+
+    /// sets the array size of an rtval
+    void rtValSetArraySize(FabricCore::RTVal & value, unsigned int size);
+
+    /// returns an element of an rtval array
+    void rtValSetArrayElement(FabricCore::RTVal & value, unsigned int index, const FabricCore::RTVal & element);
 		
 	protected:
 
@@ -121,10 +115,6 @@ namespace FabricSplice
 		// parameter that contains all specific information.
 		FabricSplice::DGPort m_port;
 		
-		/// a preset table if a single level 
-		/// variant map of string=value
-		//Muggins::VariantMapPtr m_presets;
-		
 		/// a List of action to be added to each Context Menu
 		/// this enable external object to add their action to the Menu
 		QList<QAction *> m_extraMenuActions;
@@ -132,16 +122,6 @@ namespace FabricSplice
 		/// dictate is the uiUpdate are silenced 
 		/// usefull when you want to update a UI without any further action being triggered
 		bool m_silentUpdate;
-		
-		// information about the state of the attribute 
-		// those are mostly used for the display , the Model should enforce them 
-		
-		/// is the attributes locked
-		bool m_lock;
-		
-		/// is the attributes connected
-		bool m_connected;
-		
 	};
 	
 	

@@ -48,12 +48,12 @@ FabricCore::RTVal SInt32SliderAEWidget::getValueArray()
 
   FABRIC_TRY_RETURN("SInt32SliderAEWidget::getValueArray", FabricCore::RTVal(), 
 
-  	values = constructRTVal("SInt32[]");
-    values.setArraySize(m_widgets.size());
+  	values = rtValConstruct("SInt32");
+    rtValSetArraySize(values, m_widgets.size());
   	for (unsigned int i = 0; i < m_widgets.size(); ++i)
     {
       QString value = m_widgets[i]->text();
-      values.setArrayElement(i, constructSInt32RTVal(value.toInt()));
+      rtValSetArrayElement(values, i, constructSInt32RTVal(value.toInt()));
     }
   );
 	return values;
@@ -74,7 +74,7 @@ void SInt32SliderAEWidget::setValueArray(FabricCore::RTVal values)
   FABRIC_TRY("SInt32SliderAEWidget::setValueArray", 
 
     // clear the layout
-    if(values.getArraySize() != m_widgets.size())
+    if(rtValGetArraySize(values) != m_widgets.size())
     {
       QLayoutItem* item;
       while ( ( item = m_listWidget->layout()->takeAt( 0 ) ) != NULL )
@@ -90,9 +90,9 @@ void SInt32SliderAEWidget::setValueArray(FabricCore::RTVal values)
 
       QGridLayout * layout = (QGridLayout*)m_listWidget->layout();
 
-      m_sliders.resize(values.getArraySize());
-      m_widgets.resize(values.getArraySize());
-      for (unsigned int i = 0; i < values.getArraySize(); ++i)
+      m_sliders.resize(rtValGetArraySize(values));
+      m_widgets.resize(rtValGetArraySize(values));
+      for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
       {
         m_sliders[i] = new QSlider(m_listWidget);
         m_sliders[i]->setRange(bottom, top);
@@ -111,9 +111,9 @@ void SInt32SliderAEWidget::setValueArray(FabricCore::RTVal values)
       }
     }
 
-    for (unsigned int i = 0; i < values.getArraySize(); ++i)
+    for (unsigned int i = 0; i < rtValGetArraySize(values); ++i)
     {
-      int value = values.getArrayElement(i).getSInt32();
+      int value = rtValGetArrayElement(values, i).getSInt32();
       m_widgets[i]->setText(QString::number(value));
     }
 

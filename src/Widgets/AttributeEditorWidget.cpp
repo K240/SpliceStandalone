@@ -34,16 +34,53 @@ AttributeEditorWidget::~AttributeEditorWidget()
 
 void AttributeEditorWidget::clearAllWidgets()
 {
-  // todo: remove all widgets
+  // make sure we delete each item in the Map
+  QLayoutItem* item;
+  while ( ( item = layout()->takeAt( 0 ) ) != NULL )
+  {
+    delete item->widget();
+    delete item;
+  }
+  m_widgetMap.clear();
 }
 
 void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 {
   printf("AttributeEditorWidget::setWrapper\n");
-  m_wrapper = wrapper;
-  if(m_wrapper)
+
+  if(m_wrapper == wrapper && wrapper)
   {
-    // todo: get all ports etc
+    if(m_widgetMap.size() == m_wrapper->getGraph().getDGPortCount())
+      return;
+  }
+
+  clearAllWidgets();
+
+  m_wrapper = wrapper;
+  if(!m_wrapper)
+    return;
+
+  const AEWidgetFactory & factory = AEWidgetFactory::widgetFactory();
+
+  FabricSplice::DGGraph graph = m_wrapper->getGraph();
+  for(unsigned int i=0;i<graph.getDGPortCount();i++)
+  {
+    FabricSplice::DGPort port = graph.getDGPort(i);
+    AEWidget * widget = factory.create(port);
+    if(!widget)
+    {
+      printf("Warning: Widget for dataType '%s' not available.\n", port.getDataType());
+      continue;
+    }
+
+    m_widgetMap[port.getName()] = widget;
+    layout()->addWidget(widget);
+
+    connect(widget, SIGNAL(AEWigetValueChanged(std::string)) ,
+        this , SLOT(widgetValueChanged(std::string)) );
+
+    // we silence the uiUpate signal as to double update
+    widget->setSilentUpdate(true);
   }
 }
 
@@ -80,50 +117,6 @@ void AttributeEditorWidget::setWidgetPort( std::string name, FabricSplice::DGPor
 
   );
 	
-}
-
-void AttributeEditorWidget::setWidgetConnected(std::string name , bool value)
-{
-	AEWidget * widget = getWidget(name);
-	if (widget)
-	{
-		widget->setConnected(value);
-	}
-}
-
-void AttributeEditorWidget::setWidgetLocked(std::string name, bool value)
-{
-	AEWidget * widget = getWidget(name);
-	if (widget)
-	{
-		widget->setLocked(value);
-	}
-}
-
-void AttributeEditorWidget::widgetAdded(AEWidget * widget , std::string name)
-{
-	m_widgetMap[name] = widget;
-	
-	connect(widget, SIGNAL(AEWigetValueChanged(std::string)) ,
-			this , SLOT(widgetValueChanged(std::string)) );
-
-	// we silence the uiUpate signal as to double update
-	widget->setSilentUpdate(true);
-	
-  FABRIC_TRY("AttributeEditorWidget::widgetAdded", 
-
-    // todo: widget added  
-   //  FabricCore::RTVal nameVal = constructStringRTVal(name.c_str());
-  	// NodeData::DGPortList & args = m_nodeData->getArgs();
-   //  for(size_t i=0;i<args.size();i++)
-   //  {
-   //    if(args[i].getName() != name)
-   //      continue;
-  	// 	widget->setPort( args[i] );
-   //  }
-  );
-	
-	widget->setSilentUpdate(false);	
 }
 
 void AttributeEditorWidget::updateAllWidgets()

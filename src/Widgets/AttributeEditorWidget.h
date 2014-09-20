@@ -2,8 +2,6 @@
 #define __ATTRIBUTEEDITOREWIDGET_H__
 
 #include <QtGui/QWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QTreeWidgetItem>
 #include <QtGui/QContextMenuEvent>
 
 #include <map>
@@ -38,9 +36,6 @@ namespace FabricSplice
 
 	class AEWidget;	
 	class AEWidgetFactory;
-	class AETreeView;
-	class AEModel;
-	class AEFilterModel;
 	
 	/// \brief Top level Widget for the Attribute Editor.
 	/// 
@@ -65,51 +60,26 @@ namespace FabricSplice
 			AttributeEditorWidget(QWidget* parent = NULL);
 			~AttributeEditorWidget();
 
-			//*{ name accessors
-			/// get the internal tree 
-			AETreeView * 	getTreeView() 	{return m_treeView;}
-			/// get the internal model 
-			AEModel    *	getModel() 		{return m_model;}
-			/// get the internal NodeData
-			NodeDataPtr 	getNodeData() 	{return m_nodeData;}
-			//*}
+      /// clears all widgets
+      void clearAllWidgets();
 
       /// set the internal data from a wrapper
       void setWrapper(SpliceGraphWrapper::Ptr wrapper);
 
-			/// set the internal nodegraph from the groups
-			void setParams(FabricCore::RTVal nodeData);
-			
-			/// update the args and also make sure the widget is reflecting this new value 
-			void setWidgetPort( std::string name, FabricSplice::DGPort port, bool silent = true );
-			
-			/// initial brute for setting up the widget to their current value
-			void updateAllWidget();
-	
-			/// return a the widget for that name 
-			AEWidget * getWidget(std::string argName);
-			
-			/// if the currentModel is the filter one
-			/// this will reset the filter to be the normal model
-			void removeProxyFilter();
-	
-			/// if needed create a proxy filter and attached it
-			///	in between the model and the view \n
-			/// use the slot filterTextChanged(QString) to change the text )\n
-			/// and the slot filterTypeChanged(int) to change the mode \n
-			void addProxyFilter();
-			
-			/// set the locked state of a named Widget in the AE
-			void setWidgetLocked(std::string name , bool value);
+      /// update the args and also make sure the widget is reflecting this new value 
+      void setWidgetPort( std::string name, FabricSplice::DGPort port, bool silent = true );
+      
+      /// initial brute for setting up the widget to their current value
+      void updateAllWidgets();
+  
+      /// return a the widget for that name 
+      AEWidget * getWidget(std::string argName);
+      
+      /// set the locked state of a named Widget in the AE
+      void setWidgetLocked(std::string name , bool value);
 
-			/// set the connected state of a named Widget in the AE
-			void setWidgetConnected(std::string name , bool value);
-
-			/// mostly exposed for debuging at the moment should be protected 
-			void clearTree();
-
-      /// refresh
-      void updateParams();
+      /// set the connected state of a named Widget in the AE
+      void setWidgetConnected(std::string name , bool value);
 
 		public slots:
 			
@@ -120,14 +90,6 @@ namespace FabricSplice
 			/// added to the tree 
 			virtual void widgetValueChanged(std::string attributeName);
 	
-			/// connect this to a signal that will control the text
-			/// used by the filter , this will be using the current mode
-			/// set by using : filterModeChanged(int mode);
-			void filterTextChanged(QString text);
-			
-			///
-			void filterModeChanged(AEFilterMode mode);
-			
 		private slots:
 			/// mostly for debuging , activate the printArgs button when the args are dirty
 			/// void activatePrintButton();
@@ -140,12 +102,6 @@ namespace FabricSplice
 			void attributeChanged( QSpliceGraphWrapper wrapper, std::string attributeName );
 			
 		protected:
-						
-			//void buildCollectionVisibilityMenu();
-			//void updateMenuForCollection(CollectionWidget * collection , QMenu * menu);
-			//void contextMenuEvent(QContextMenuEvent *event);
-			
-		protected:
 
 			//! @name UI Elements
 			//@{
@@ -155,31 +111,7 @@ namespace FabricSplice
 
 			/// this is a potential debug button ( normally not added or created )
 			QPushButton * m_printArgsButton;
-			/// in the current build this is not created because of a small bug in
-			/// the actual display of the filtered attribute
-			QLineEdit   * m_filterLine;
-			//@}
-			
-			/// Data Elements
-			NodeDataPtr m_nodeData;
 
-			/// Data Elements
-			FabricCore::RTVal m_groupData;
-		
-			/// the model for this AttributeEditor
-			AEModel		* m_model;
-			/// the tree view for this AttributeEditor
-			AETreeView * m_treeView;
-		
-			/// in case we want to use a filter 
-			AEFilterModel * m_proxyModel;
-			
-			/// the current text used by the filter
-			QString m_filterText;
-			
-			/// the current mode used by the filter
-			AEFilterMode m_filterMode;
-			
 			/// a map of widget for names
 			typedef std::map< std::string , AEWidget * > WidgetMap;
 			WidgetMap m_widgetMap;

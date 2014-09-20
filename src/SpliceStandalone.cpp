@@ -175,11 +175,6 @@ void SpliceStandalone::needRedraw()
 	m_mainWindow->redraw();
 }
 
-void SpliceStandalone::updateParams()
-{
-	m_mainWindow->updateParams();
-}
-
 void SpliceStandalone::setupFusionLook()
 {
 	qApp->setStyle(QStyleFactory::create("Fusion"));

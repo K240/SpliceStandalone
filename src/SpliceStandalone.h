@@ -37,9 +37,6 @@ namespace FabricSplice {
   	// something trigger the need for a redraw of the window
   	void needRedraw();
 
-  	// a node change the params on a node , the window need to reload them 
-  	void updateParams();
-
   	// dispatch a message to the log window 
   	void displayMessage(std::string message);
 

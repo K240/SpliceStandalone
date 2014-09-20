@@ -339,12 +339,6 @@ void MainWindow::redraw()
 	m_glWidget->updateGL();
 }
 
-void MainWindow::updateParams()
-{
-  for(size_t i=0;i<m_attributeEditors.size();i++)
-    m_attributeEditors[i]->updateParams();
-}
-
 void MainWindow::loadScript()
 { 
   std::string fileName = stdStringFromQString(QFileDialog::getOpenFileName(this,
@@ -374,7 +368,7 @@ void MainWindow::clearAll()
     m_logWidgets[i]->clear();
   for(size_t i=0;i<m_attributeEditors.size();i++)
   {
-    m_attributeEditors[i]->clearTree();
+    m_attributeEditors[i]->clearAllWidgets();
     m_attributeEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
   }
   for(size_t i=0;i<m_sourceEditors.size();i++)

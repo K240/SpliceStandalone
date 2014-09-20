@@ -2,8 +2,6 @@
 #define __XFOAEWIDGET_H__
 
 #include <QtGui/QWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QTreeWidgetItem>
 #include <QtGui/QContextMenuEvent>
 #include <map>
 #include <set>

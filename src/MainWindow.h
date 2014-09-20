@@ -58,9 +58,6 @@ namespace FabricSplice
   	void redraw();
   	void displayMessage(std::string message);
 
-  	// the parameters on the Attribute editor need updating
-  	void updateParams();
-
   public slots:
   	void loadScript();
   	

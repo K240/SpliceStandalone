@@ -2,8 +2,6 @@
 #define __BOOLEANAEWIDGET_H__
 
 #include <QtGui/QWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QTreeWidgetItem>
 #include <QtGui/QContextMenuEvent>
 #include <map>
 #include <set>

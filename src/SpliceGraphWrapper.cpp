@@ -40,10 +40,15 @@ bool SpliceGraphWrapper::reload()
 {
   FABRIC_TRY_RETURN("SpliceGraphWrapper::reload", false,
 
+    FabricSplice::PersistenceInfo info;
+    info.hostAppName = FabricCore::Variant::CreateString("Splice Standalone");
+    info.hostAppVersion = FabricCore::Variant::CreateString("1.0");;
+    info.filePath = FabricCore::Variant::CreateString(m_path.c_str());
+
 		// build the operator
     // m_dgGraph = DGGraph(name().c_str());
 		m_dgGraph.clear();
-    m_dgGraph.loadFromFile(m_path.c_str());
+    m_dgGraph.loadFromFile(m_path.c_str(), &info);
 
   );
 

@@ -74,8 +74,13 @@ void KLEditor::saveEditorCodeToDisk(std::string path)
 {
   if(m_editorWrapper)
   {
+    FabricSplice::PersistenceInfo info;
+    info.hostAppName = FabricCore::Variant::CreateString("Splice Standalone");
+    info.hostAppVersion = FabricCore::Variant::CreateString("1.0");;
+    info.filePath = FabricCore::Variant::CreateString(path.c_str());
+
     FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
-    graph.saveToFile(path.c_str());
+    graph.saveToFile(path.c_str(), &info);
   }
 }
 

@@ -15,14 +15,6 @@
 
 #include "SpliceGraphWrapper.h"
 
-/// \brief Simple wrapper around a FabricCore::RTVal to expose it to Qt
-struct QSpliceGraphWrapper
-{
-  FabricSplice::SpliceGraphWrapper::Ptr wrapper;
-};
-
-Q_DECLARE_METATYPE(QSpliceGraphWrapper)
-
 namespace FabricSplice
 {
 #ifndef __NODEDATA_FWD__

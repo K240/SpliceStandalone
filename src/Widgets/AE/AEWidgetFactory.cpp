@@ -56,8 +56,12 @@ bool AEWidgetFactory::registerStandardType() const
 		registerType("Boolean", BooleanAEWidget::create );
     registerType("Float32", Float32AEWidget::create );
     registerType("Float32Slider", Float32SliderAEWidget::create );
+    registerType("Scalar", Float32AEWidget::create );
+    registerType("ScalarSlider", Float32SliderAEWidget::create );
     registerType("SInt32", SInt32AEWidget::create );
     registerType("SInt32Slider", SInt32SliderAEWidget::create );
+    registerType("Integer", SInt32AEWidget::create );
+    registerType("IntegerSlider", SInt32SliderAEWidget::create );
     registerType("Vec2", Vec2AEWidget::create );
     registerType("Vec3", Vec3AEWidget::create );
     registerType("Euler", EulerAEWidget::create );

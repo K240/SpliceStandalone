@@ -1,8 +1,7 @@
 #include "SpliceStandalone.h"
-#include "MainWindow.h"
+#include "SpliceGraphWrapper.h"
 
 #include <iostream>
-#include <sstream>
 #include <istream>
 #include <ostream>
 #include <string>
@@ -57,7 +56,6 @@ int main(int argc, char *argv[])
 
 	// Blocks until application decides to quit.
 	app.exec();
-	
 	
 	return EXIT_SUCCESS;
 }

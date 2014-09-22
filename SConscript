@@ -79,6 +79,17 @@ def GlobRecursive(self, pattern, useBuildDir = False):
   return result
 env.AddMethod(GlobRecursive)
 
+# sources = env.Glob('src/main.cpp')
+# sources += env.Glob('src/SpliceGraphWrapper.cpp')
+# sources += env.Glob('src/SpliceStandalone.cpp')
+# sources += env.Glob('src/MainWindow.cpp')
+# sources += env.Glob('src/Widgets/LogWidget.cpp')
+# sources += env.Glob('src/Widgets/TimeSliderWidget.cpp')
+# sources += env.Glob('src/Widgets/GLWidget.cpp')
+# sources += env.Glob('src/ManipulationTool.cpp')
+# sources += env.Glob('src/Widgets/KLSyntaxHighlighter.cpp')
+# sources += env.Glob('src/Widgets/KLSourceCodeWidget.cpp')
+# sources += env.Glob('src/Widgets/KLEditor.cpp')
 sources = env.Glob('src/*.cpp')
 sources += env.Glob('src/Widgets/*.cpp')
 sources += env.Glob('src/Widgets/AE/*.cpp')

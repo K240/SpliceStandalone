@@ -1,9 +1,6 @@
 #include "SpliceGraphWrapper.h"
 #include "macros.h"
 
-#define FABRIC_WARN(msg) { const char *file=__FILE__; const int line=__LINE__;                                    \
-	std::cerr << "Fabric WARNING: (file " << file << ", line " << line << "): " << msg << std::endl;  }           \
-
 using namespace FabricSplice;
 
 SpliceGraphWrapper::SpliceGraphWrapper(const std::string & path) :

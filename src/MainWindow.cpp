@@ -9,6 +9,7 @@
 #include "MainWindow.h"
 #include "SpliceStandalone.h"
 #include "Widgets/TimeSliderWidget.h"
+#include "Widgets/GLWidget.h"
 
 using namespace FabricSplice;
 
@@ -89,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) :
 	QMainWindow(parent, flags)
 
 {
-  SpliceStandalone* app = static_cast<SpliceStandalone *>(QApplication::instance());
+  SpliceStandalone* app = SpliceStandalone::getInstance();
   boost::filesystem::path imagesDir = app->getAppPath() / "images";
   boost::filesystem::path feLogoPath = imagesDir / "fe_logo.png";
 
@@ -196,7 +197,7 @@ void MainWindow::attributeChanged( QSpliceGraphWrapper wrapper, std::string attr
 
 void MainWindow::timeChanged(int frame)
 {
-  SpliceStandalone* app = static_cast<SpliceStandalone *>(QApplication::instance());
+  SpliceStandalone* app = SpliceStandalone::getInstance();
   const std::vector<SpliceGraphWrapper::Ptr> & wrappers = app->wrappers();
   for(size_t i=0;i<wrappers.size();i++)
     wrappers[i]->setFrame(frame);
@@ -222,7 +223,7 @@ void MainWindow::showAttributeEditor()
     bringToFront(m_attributeEditors[0]);
     return;
   }
-  SpliceStandalone* app = static_cast<SpliceStandalone *>(QApplication::instance());
+  SpliceStandalone* app = SpliceStandalone::getInstance();
   const std::vector<SpliceGraphWrapper::Ptr> & wrappers = app->wrappers();
   QDockWidget *dock = new QDockWidget("Attribute Editor", this);
   AttributeEditorWidget * widget = new AttributeEditorWidget(this);
@@ -255,7 +256,7 @@ void MainWindow::showKLEditor()
     bringToFront(m_sourceEditors[0]);
     return;
   }
-  SpliceStandalone* app = static_cast<SpliceStandalone *>(QApplication::instance());
+  SpliceStandalone* app = SpliceStandalone::getInstance();
   const std::vector<SpliceGraphWrapper::Ptr> & wrappers = app->wrappers();
   QDockWidget *dock = new QDockWidget("KL Editor", this);
   KLEditor * widget = new KLEditor(this);
@@ -349,11 +350,11 @@ void MainWindow::loadScript()
 
 	clearAll();
 
-	SpliceStandalone* app = static_cast<SpliceStandalone *>(QApplication::instance());
+	SpliceStandalone* app = SpliceStandalone::getInstance();
 	SpliceGraphWrapper::Ptr wrapper = app->addWrapper(fileName);
 
-  for(size_t i=0;i<m_attributeEditors.size();i++)
-    m_attributeEditors[i]->setWrapper(wrapper);
+  // for(size_t i=0;i<m_attributeEditors.size();i++)
+  //   m_attributeEditors[i]->setWrapper(wrapper);
   for(size_t i=0;i<m_sourceEditors.size();i++)
     m_sourceEditors[i]->setWrapper(wrapper);
 
@@ -362,14 +363,14 @@ void MainWindow::loadScript()
 
 void MainWindow::clearAll()
 { 
-	SpliceStandalone* app = static_cast<SpliceStandalone *>(QApplication::instance());
+	SpliceStandalone* app = SpliceStandalone::getInstance();
 
   for(size_t i=0;i<m_logWidgets.size();i++)
     m_logWidgets[i]->clear();
-  for(size_t i=0;i<m_attributeEditors.size();i++)
-  {
-    m_attributeEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
-  }
+  // for(size_t i=0;i<m_attributeEditors.size();i++)
+  // {
+  //   m_attributeEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
+  // }
   for(size_t i=0;i<m_sourceEditors.size();i++)
   {
     m_sourceEditors[i]->clear();
@@ -385,7 +386,7 @@ void MainWindow::clearAll()
 
 void MainWindow::reloadAll()
 { 
-	SpliceStandalone* app = static_cast<SpliceStandalone *>(QApplication::instance());
+	SpliceStandalone* app = SpliceStandalone::getInstance();
 	app->reloadAll();
 	m_glWidget->updateGL();
 }

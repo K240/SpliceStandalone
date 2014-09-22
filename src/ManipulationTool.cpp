@@ -36,8 +36,6 @@ bool ManipulationCmd::redoIt()
       m_rtval_commands.getArrayElement(i).callMethod("", "doAction", 0, 0);
     }
   }
-  //M3dView view = M3dView::active3dView();
-  //view.refresh(true, true);
   return true;
 }
 
@@ -50,8 +48,6 @@ bool ManipulationCmd::undoIt()
       m_rtval_commands.getArrayElement(i).callMethod("", "undoAction", 0, 0);
     }
   }
-  //M3dView view = M3dView::active3dView();
-  //view.refresh(true, true);
   return true;
 }
 
@@ -126,7 +122,6 @@ bool ManipulationTool::onEvent(QEvent *event)
 {
   if(!mManipulationHandle.isValid())
   {
-    //mayaLogFunc("Fabric Client not constructed yet.");
     return false;
   }
   // Now we translate the Qt events to FabricEngine events..

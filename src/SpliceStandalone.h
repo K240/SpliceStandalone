@@ -1,6 +1,7 @@
 #ifndef __SPLICESTANDALONE_H__
 #define __SPLICESTANDALONE_H__
 
+#include <QtGui/QtGui>
 #include <QtGui/QApplication>
 #include <QtGui/QWindowsStyle>
 #include <QtGui/QFont>
@@ -9,6 +10,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "SpliceGraphWrapper.h"
+#include "MainWindow.h"
 
 namespace FabricSplice {
 
@@ -16,35 +18,40 @@ namespace FabricSplice {
 
   class SpliceStandalone : public QApplication
   {
+    Q_OBJECT
+
   public:
-  	SpliceStandalone(int &argc, char **argv);
-  	virtual ~SpliceStandalone();
 
-  	SpliceGraphWrapper::Ptr addWrapper(const std::string & klPath);
-  	const std::vector<SpliceGraphWrapper::Ptr> & wrappers();
+    SpliceStandalone(int &argc, char **argv);
+    virtual ~SpliceStandalone();
 
-  	// this will make sure the main window is created and then raise it
-  	void showMainWindow();
+    SpliceGraphWrapper::Ptr addWrapper(const std::string & klPath);
+    const std::vector<SpliceGraphWrapper::Ptr> & wrappers();
 
-  	// clear all the scripts
-  	void clearAll();
+    // this will make sure the main window is created and then raise it
+    void showMainWindow();
 
-  	// reload all the scripts
-  	void reloadAll();
+    // clear all the scripts
+    void clearAll();
 
-  	void setupFusionLook();
+    // reload all the scripts
+    void reloadAll();
 
-  	// something trigger the need for a redraw of the window
-  	void needRedraw();
+    void setupFusionLook();
 
-  	// dispatch a message to the log window 
-  	void displayMessage(std::string message);
+    // something trigger the need for a redraw of the window
+    void needRedraw();
+
+    // dispatch a message to the log window 
+    void displayMessage(std::string message);
 
     // access to the application's path
     boost::filesystem::path getAppPath() const { return m_appPath; }
 
     // get the standard font for widgets
     QFont getWidgetFont();
+
+    static SpliceStandalone * getInstance();
 
   private:
 
@@ -53,22 +60,20 @@ namespace FabricSplice {
     // the splash screen
     QSplashScreen * m_splashScreen;
 
-  	// the main window 
-  	MainWindow * m_mainWindow;
+    // the main window 
+    MainWindow * m_mainWindow;
 
     boost::filesystem::path m_appPath;
-  	std::vector<SpliceGraphWrapper::Ptr> m_wrappers;
-
+    std::vector<SpliceGraphWrapper::Ptr> m_wrappers;
   };
 
   // global accessor for all fonts
   inline QFont getApplicationWidgetFont()
   {
-    SpliceStandalone * app = static_cast<SpliceStandalone *>(QApplication::instance());
-    return app->getWidgetFont();
+    if(SpliceStandalone::getInstance())
+      return SpliceStandalone::getInstance()->getWidgetFont();
+    return QFont();
   }
-
-
 };
 
 #endif // __SPLICESTANDALONE_H__

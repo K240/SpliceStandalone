@@ -8,7 +8,6 @@
 #include "KLSourceCodeWidget.h"
 
 #include <iomanip>  
-#include <sstream>
 #include <string>
 
 using namespace FabricSplice;
@@ -51,11 +50,14 @@ void LineNumberWidget::paintEvent ( QPaintEvent * event )
   painter.setPen( QColor(139, 140, 135) );
 
   int line = mLineOffset + 1;
+  char buffer[128];
   while(offset < height)
   {
-    std::ostringstream ss;
-    ss << std::setw( 4 ) << std::setfill( '0' ) << line;
-    std::string paddingNumber = ss.str();
+    std::string paddingNumber;
+    itoa(line, buffer, 10);
+    paddingNumber = buffer;
+    while(paddingNumber.length() < 4)
+      paddingNumber = "0" + paddingNumber;
 
     int lineWidth = mFontMetrics->width(paddingNumber.c_str());
     painter.drawText(QPoint(width - 2 - lineWidth, offset), paddingNumber.c_str());

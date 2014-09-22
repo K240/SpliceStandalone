@@ -2,7 +2,6 @@
 #define SpliceGraphWrapper_H
 
 #include <iostream>
-#include <sstream>
 #include <istream>
 #include <ostream>
 #include <string>
@@ -14,6 +13,7 @@
 
 #include <FabricSplice.h>
 #include <FabricCore.h>
+#include <QtCore/QMetaType>
 
 namespace FabricSplice
 {
@@ -66,6 +66,14 @@ namespace FabricSplice
 
   };
 };
+
+/// \brief Simple wrapper around a FabricCore::RTVal to expose it to Qt
+struct QSpliceGraphWrapper
+{
+  FabricSplice::SpliceGraphWrapper::Ptr wrapper;
+};
+
+Q_DECLARE_METATYPE(QSpliceGraphWrapper);
 
 #endif // SpliceGraphWrapper_H
 

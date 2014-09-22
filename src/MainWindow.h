@@ -13,21 +13,20 @@
 #include <QtGui/QSlider>
 #include <QtGui/QGroupBox>
 #include <QtCore/QElapsedTimer>
+#include "SpliceGraphWrapper.h"
 
-// #include "Widgets/AttributeEditor.h"
-#include "Widgets/KLEditor.h"
 #include "Widgets/LogWidget.h"
-#include "Widgets/AttributeEditorWidget.h"
-
 #include "Widgets/GLWidget.h"
 #include "ManipulationTool.h"
+#include "Widgets/KLEditor.h"
+#include "Widgets/AttributeEditorWidget.h"
 
 #include "utility.h"
 
 namespace FabricSplice
 {
   class GLWidget;
-	class TimeSliderWidget;
+  class TimeSliderWidget;
   class MainWindow;
 
   class MainWindowKeyFilter : public QObject
@@ -47,27 +46,27 @@ namespace FabricSplice
   {
     friend class MainWindowKeyFilter;
     
-  	Q_OBJECT
+    Q_OBJECT
 
   public:
 
-  	MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::CustomizeWindowHint );
-  	~MainWindow() {};
+    MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::CustomizeWindowHint );
+    ~MainWindow() {};
 
-  	// make sure the widgetRedraw;
-  	void redraw();
-  	void displayMessage(std::string message);
+    // make sure the widgetRedraw;
+    void redraw();
+    void displayMessage(std::string message);
 
   public slots:
-  	void loadScript();
-  	
-  	void clearAll();
-  	void reloadAll();
+    void loadScript();
+    
+    void clearAll();
+    void reloadAll();
 
-  	void activateManipulator();
+    void activateManipulator();
 
     void attributeChanged( QSpliceGraphWrapper wrapper, std::string attributeName );
-  	void timeChanged(int frame);
+    void timeChanged(int frame);
     void glViewRedrawn();
 
     void showKLEditor();
@@ -85,17 +84,15 @@ namespace FabricSplice
 
     void bringToFront(QWidget * widget);
 
-  	GLWidget *  m_glWidget;
+    GLWidget *  m_glWidget;
 
-  	// AttributeEditor * 	m_attributeEditor;
+    std::vector<AttributeEditorWidget *> m_attributeEditors;
+    std::vector<KLEditor *> m_sourceEditors;
+    std::vector<LogWidget *> m_logWidgets;
 
-  	std::vector<KLEditor *> m_sourceEditors;
-  	std::vector<AttributeEditorWidget *> m_attributeEditors;
-  	std::vector<LogWidget *> m_logWidgets;
+    TimeSliderWidget * m_timeSliderWidget;
 
-  	TimeSliderWidget * m_timeSliderWidget;
-
-  	ManipulationTool *		m_manipulatorContext;
+    ManipulationTool *  m_manipulatorContext;
 
     MainWindowKeyFilter * m_eventFilter;
 

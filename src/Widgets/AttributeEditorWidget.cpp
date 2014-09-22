@@ -48,10 +48,9 @@ void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 {
   printf("AttributeEditorWidget::setWrapper\n");
 
-  if(m_wrapper == wrapper && wrapper)
+  if(m_wrapper == wrapper)
   {
-    if(m_widgetMap.size() == m_wrapper->getGraph().getDGPortCount())
-      return;
+    return;
   }
 
   clearAllWidgets();
@@ -66,6 +65,9 @@ void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
   for(unsigned int i=0;i<graph.getDGPortCount();i++)
   {
     FabricSplice::DGPort port = graph.getDGPort(i);
+    if(port.isArray())
+      continue;
+
     AEWidget * widget = factory.create(port);
     if(!widget)
     {

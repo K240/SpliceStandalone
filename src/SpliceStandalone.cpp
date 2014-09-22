@@ -117,6 +117,11 @@ SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & klPath)
 {
   SpliceGraphWrapper::Ptr wrapper = SpliceGraphWrapper::Ptr(new SpliceGraphWrapper(klPath));
   m_wrappers.push_back(wrapper);
+
+  // setup the evaluation context
+  FabricCore::RTVal context = wrapper->getGraph().getEvalContext();
+  context.setMember("host", FabricSplice::constructStringRTVal("Splice Standalone"));
+  context.setMember("graph", FabricSplice::constructStringRTVal(klPath.c_str()));
   
   return wrapper;
 
@@ -145,6 +150,11 @@ void SpliceStandalone::showMainWindow()
   m_mainWindow->raise();
 
   m_splashScreen->finish(m_mainWindow);
+}
+
+MainWindow * SpliceStandalone::getMainWindow()
+{
+  return m_mainWindow;
 }
 
 void SpliceStandalone::constructFabricClient()

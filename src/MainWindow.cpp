@@ -190,9 +190,16 @@ void MainWindow::attributeChanged( QSpliceGraphWrapper wrapper, std::string attr
   if(!wrapperPtr)
     return;
 
+  // update the evaluation context's input table
+  FabricCore::RTVal context = wrapperPtr->getGraph().getEvalContext();
+
+  wrapperPtr->dirtyInput(attributeName);
+
   // perform an evaluation
   wrapperPtr->evaluate(true);
   redraw();
+
+  context.callMethod("", "clear", 0, 0);
 }
 
 void MainWindow::timeChanged(int frame)
@@ -353,12 +360,26 @@ void MainWindow::loadScript()
 	SpliceStandalone* app = SpliceStandalone::getInstance();
 	SpliceGraphWrapper::Ptr wrapper = app->addWrapper(fileName);
 
-  // for(size_t i=0;i<m_attributeEditors.size();i++)
-  //   m_attributeEditors[i]->setWrapper(wrapper);
+  for(size_t i=0;i<m_attributeEditors.size();i++)
+    m_attributeEditors[i]->setWrapper(wrapper);
   for(size_t i=0;i<m_sourceEditors.size();i++)
     m_sourceEditors[i]->setWrapper(wrapper);
 
 	redraw();
+}
+
+void MainWindow::reloadedScript()
+{ 
+  SpliceStandalone* app = SpliceStandalone::getInstance();
+  if(app->wrappers().size() == 0)
+    return;
+
+  for(size_t i=0;i<m_attributeEditors.size();i++)
+    m_attributeEditors[i]->setWrapper(app->wrappers()[0]);
+
+  // for(size_t i=0;i<m_sourceEditors.size();i++)
+  //   m_sourceEditors[i]->setWrapper(app->wrappers()[0]);
+  redraw();
 }
 
 void MainWindow::clearAll()
@@ -367,10 +388,10 @@ void MainWindow::clearAll()
 
   for(size_t i=0;i<m_logWidgets.size();i++)
     m_logWidgets[i]->clear();
-  // for(size_t i=0;i<m_attributeEditors.size();i++)
-  // {
-  //   m_attributeEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
-  // }
+  for(size_t i=0;i<m_attributeEditors.size();i++)
+  {
+    m_attributeEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
+  }
   for(size_t i=0;i<m_sourceEditors.size();i++)
   {
     m_sourceEditors[i]->clear();

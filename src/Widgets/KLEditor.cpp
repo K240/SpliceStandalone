@@ -87,7 +87,8 @@ void KLEditor::compilePressed()
   	saveEditorCodeToDisk(currentPath);
   	m_editorWrapper->reload();
   	
-  	SpliceStandalone * app = static_cast<SpliceStandalone *>(QApplication::instance());
+  	SpliceStandalone * app = SpliceStandalone::getInstance();
+    app->getMainWindow()->reloadedScript();
   	app->needRedraw();
   }
 }

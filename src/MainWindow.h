@@ -62,6 +62,7 @@ namespace FabricSplice
     
     void clearAll();
     void reloadAll();
+    void reloadedScript();
 
     void activateManipulator();
 

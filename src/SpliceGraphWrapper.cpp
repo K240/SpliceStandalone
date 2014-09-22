@@ -1,5 +1,6 @@
 #include "SpliceGraphWrapper.h"
 #include "macros.h"
+#include <boost/filesystem/path.hpp>
 
 using namespace FabricSplice;
 
@@ -8,7 +9,7 @@ SpliceGraphWrapper::SpliceGraphWrapper(const std::string & path) :
 { 
   FABRIC_TRY("SpliceGraphWrapper::SpliceGraphWrapper", 
 
-    m_dgGraph = DGGraph(path.c_str());
+    m_dgGraph = DGGraph(name().c_str());
     m_isTimeDependent = -1;
 
   );
@@ -22,7 +23,7 @@ SpliceGraphWrapper::SpliceGraphWrapper(const std::string & path) :
 
 std::string SpliceGraphWrapper::name()
 {
-	return m_path;
+	return boost::filesystem::path(m_path).stem().string();
 }
 
 void SpliceGraphWrapper::transferParamsToSplice(FabricCore::RTVal params)
@@ -40,6 +41,7 @@ bool SpliceGraphWrapper::reload()
   FABRIC_TRY_RETURN("SpliceGraphWrapper::reload", false,
 
 		// build the operator
+    // m_dgGraph = DGGraph(name().c_str());
 		m_dgGraph.clear();
     m_dgGraph.loadFromFile(m_path.c_str());
 
@@ -91,13 +93,18 @@ bool SpliceGraphWrapper::evaluate(bool force)
 
 bool SpliceGraphWrapper::setFrame(int frame) 
 {
+  // update the evaluation context's time
+  FABRIC_TRY_RETURN("SpliceGraphWrapper::setFrame", false,
+    FabricCore::RTVal context = m_dgGraph.getEvalContext();
+    context.setMember("time", FabricSplice::constructFloat32RTVal(float(frame) / 24.0));
+  );
+
   if(m_isTimeDependent == -1) {
     FABRIC_TRY_RETURN("SpliceGraphWrapper::setFrame", false,
 
       FabricSplice::DGPort port = m_dgGraph.getDGPort("time");
       std::string dataType = port.getDataType();
       m_isTimeDependent = (dataType == "Scalar" || dataType == "Float32") && !port.isArray();
-
     );
   }
   if(m_isTimeDependent == 0)
@@ -114,4 +121,13 @@ bool SpliceGraphWrapper::setFrame(int frame)
   return evaluate();
 }
 
+void SpliceGraphWrapper::dirtyInput(std::string input)
+{
+  FABRIC_TRY("SpliceGraphWrapper::dirtyInput", 
+  
+    FabricCore::RTVal context = m_dgGraph.getEvalContext();
+    FabricCore::RTVal inputVal = FabricSplice::constructStringRTVal(input.c_str());
+    context.callMethod("", "_addDirtyInput", 1, &inputVal);
 
+  );
+}

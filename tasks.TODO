@@ -1,6 +1,6 @@
  ✔ move away from the tree widget to a list @done (14-09-22 16:43)
  ✔ parameters are not showing up in AE @done (14-09-22 16:43)
- ☐ evalcontext needs to be setup
- ☐ reloading doesn't work
+ ✔ evalcontext needs to be setup @done (14-09-22 17:37)
+ ✔ reloading doesn't work @done (14-09-22 17:37)
  ☐ persistence in splice should not persist members anymore, just ports (to avoid confusion)
  ☐ all sample scripts should use drawinghandle

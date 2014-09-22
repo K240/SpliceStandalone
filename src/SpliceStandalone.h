@@ -31,6 +31,9 @@ namespace FabricSplice {
     // this will make sure the main window is created and then raise it
     void showMainWindow();
 
+    // returns the main window
+    MainWindow * getMainWindow();
+
     // clear all the scripts
     void clearAll();
 

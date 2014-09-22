@@ -67,6 +67,9 @@ void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
     FabricSplice::DGPort port = graph.getDGPort(i);
     if(port.isArray())
       continue;
+    std::string portName = port.getName();
+    if(portName == "time")
+      continue;
 
     AEWidget * widget = factory.create(port);
     if(!widget)
@@ -75,7 +78,7 @@ void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
       continue;
     }
 
-    m_widgetMap[port.getName()] = widget;
+    m_widgetMap[portName] = widget;
     layout()->addWidget(widget);
 
     connect(widget, SIGNAL(AEWigetValueChanged(std::string)) ,

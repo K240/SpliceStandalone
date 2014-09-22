@@ -47,7 +47,10 @@ namespace FabricSplice
 
     // update an optional "frame" parameter
     bool setFrame(int frame);
-  	
+
+    // notify the eval context of a dirty input
+    void dirtyInput(std::string input);
+
   private:
   	// @todo: what is the user supposed to do if this is not true? What does "valid" mean in this context?
   	bool isValid() const;

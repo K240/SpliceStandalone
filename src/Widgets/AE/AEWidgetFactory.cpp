@@ -103,8 +103,6 @@ AEWidget * AEWidgetFactory::create(FabricSplice::DGPort port,
 
     std::string dataType = port.getDataType();
 
-    printf("AEWidgetFactory::create: dataType %s\n", dataType.c_str());
-
   	TypeMap::const_iterator it = m_widgetCreatorMap.find(dataType);
   	if(it == m_widgetCreatorMap.end())
   	{

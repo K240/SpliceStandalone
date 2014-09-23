@@ -74,12 +74,13 @@ ManipulationTool::ManipulationTool(GLWidget * glView)
 void ManipulationTool::toolOnSetup()
 {
   FABRIC_TRY("ManipulationTool::toolOnSetup",
-    mManipulationHandle = constructObjectRTVal("ManipulationHandle");
+    FabricCore::RTVal eventDispatcherHandle = FabricSplice::constructObjectRTVal("EventDispatcherHandle");
+    if(eventDispatcherHandle.isValid()){
+      mEventDispatcher = eventDispatcherHandle.callMethod("EventDispatcher", "getEventDispatcher", 0, 0);
 
-    if(mManipulationHandle.isValid())
-    {
-      mManipulationHandle.callMethod("", "activateManipulation", 0, 0);
-      mView->updateGL();
+      if(mEventDispatcher.isValid()){
+        mEventDispatcher.callMethod("", "activateManipulation", 0, 0);
+      }
     }
   );
   m_active = true;
@@ -97,16 +98,13 @@ void ManipulationTool::toolOffCleanup()
 
   mView->removeEventFilter(&sEventFilterObject);
   mView->clearFocus();
-   
-  if(mManipulationHandle.isValid())
-  {
-    // By deactivating the manipulation, we enable the manipulators to perform
-    // cleanup, such as hiding paint brushes/gizmos. 
-    mManipulationHandle.callMethod("", "deactivateManipulation", 0, 0);
-    mView->updateGL();
 
-    mManipulationHandle.invalidate();
-  }
+  FABRIC_TRY("ManipulationTool::toolOffCleanup",
+    if(mEventDispatcher.isValid()){
+      mEventDispatcher.callMethod("", "deactivateManipulation", 0, 0);
+    }
+  );
+   
   m_active = false;
   mView->setMouseTracking(false);
   mView->updateGL();
@@ -214,7 +212,7 @@ bool ManipulationTool::onEvent(QEvent *event)
 
       //////////////////////////
       // Invoke the event...
-      mManipulationHandle.callMethod("Boolean", "onEvent", 1, &klevent);
+      mEventDispatcher.callMethod("Boolean", "onEvent", 1, &klevent);
 
       result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
       if(result)

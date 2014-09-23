@@ -21,7 +21,9 @@
       ]
     }
   ],
-  "extensions": [],
+  "extensions": [
+    "CudaGLHelpers"
+  ],
   "ports": [
     {
       "name": "factor1",
@@ -70,6 +72,16 @@
       "type": "DrawingHandle",
       "autoInitObjects": true,
       "member": "handle",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "resources",
+      "node": "DGNode",
+      "graph": "cudadeformer",
+      "type": "CudaResourceManager",
+      "autoInitObjects": true,
+      "member": "resources",
       "mode": "io",
       "persistence": false
     },

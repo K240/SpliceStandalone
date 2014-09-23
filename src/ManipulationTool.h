@@ -43,9 +43,9 @@ namespace FabricSplice
 
   private:
     bool  m_active;
+    FabricCore::RTVal mEventDispatcher;
 
     GLWidget * mView;
-    FabricCore::RTVal mManipulationHandle;
   };
 };
 

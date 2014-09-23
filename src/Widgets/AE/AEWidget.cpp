@@ -189,8 +189,18 @@ float AEWidget::getPortOption(const char * key, float defaultValue)
   if(option.isNull())
     return defaultValue;
 
-  if(!option.isFloat64())
-    return defaultValue;
+  if(option.isSInt8())
+    return option.getSInt8();
+  if(option.isSInt16())
+    return option.getSInt16();
+  if(option.isSInt32())
+    return option.getSInt32();
+  if(option.isSInt64())
+    return option.getSInt64();
+  if(option.isFloat32())
+    return option.getFloat32();
+  if(option.isFloat64())
+    return option.getFloat64();
 
-  return option.getFloat64();
+  return defaultValue;
 }

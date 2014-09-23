@@ -74,6 +74,7 @@ ManipulationTool::ManipulationTool(GLWidget * glView)
 void ManipulationTool::toolOnSetup()
 {
   FABRIC_TRY("ManipulationTool::toolOnSetup",
+    
     FabricCore::RTVal eventDispatcherHandle = FabricSplice::constructObjectRTVal("EventDispatcherHandle");
     if(eventDispatcherHandle.isValid()){
       mEventDispatcher = eventDispatcherHandle.callMethod("EventDispatcher", "getEventDispatcher", 0, 0);
@@ -118,7 +119,7 @@ bool EventFilterObject::eventFilter(QObject *object, QEvent *event)
 
 bool ManipulationTool::onEvent(QEvent *event)
 {
-  if(!mManipulationHandle.isValid())
+  if(!mEventDispatcher.isValid())
   {
     return false;
   }

@@ -54,7 +54,11 @@ void LineNumberWidget::paintEvent ( QPaintEvent * event )
   while(offset < height)
   {
     std::string paddingNumber;
+#ifdef _WIN32
     itoa(line, buffer, 10);
+#else
+    snprintf(buffer, 128, "%d", line);
+#endif
     paddingNumber = buffer;
     while(paddingNumber.length() < 4)
       paddingNumber = "0" + paddingNumber;

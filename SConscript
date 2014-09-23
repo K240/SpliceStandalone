@@ -79,17 +79,6 @@ def GlobRecursive(self, pattern, useBuildDir = False):
   return result
 env.AddMethod(GlobRecursive)
 
-# sources = env.Glob('src/main.cpp')
-# sources += env.Glob('src/SpliceGraphWrapper.cpp')
-# sources += env.Glob('src/SpliceStandalone.cpp')
-# sources += env.Glob('src/MainWindow.cpp')
-# sources += env.Glob('src/Widgets/LogWidget.cpp')
-# sources += env.Glob('src/Widgets/TimeSliderWidget.cpp')
-# sources += env.Glob('src/Widgets/GLWidget.cpp')
-# sources += env.Glob('src/ManipulationTool.cpp')
-# sources += env.Glob('src/Widgets/KLSyntaxHighlighter.cpp')
-# sources += env.Glob('src/Widgets/KLSourceCodeWidget.cpp')
-# sources += env.Glob('src/Widgets/KLEditor.cpp')
 sources = env.Glob('src/*.cpp')
 sources += env.Glob('src/Widgets/*.cpp')
 sources += env.Glob('src/Widgets/AE/*.cpp')
@@ -107,6 +96,7 @@ installedApp = env.Install(STAGE_DIR, standaloneApp)
 
 standaloneFiles.append(installedApp)
 standaloneFiles.append(env.Install(STAGE_DIR, env.File('license.txt')))
+standaloneFiles.append(env.Install(STAGE_DIR.Dir('examples'), env.Glob('examples/*.splice')))
 
 # also install the FabricCore dynamic library
 standaloneFiles.append(env.Install(STAGE_DIR, env.Glob(os.path.join(FABRIC_CAPI_DIR, 'lib', '*.so'))))

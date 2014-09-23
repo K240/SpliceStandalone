@@ -103,6 +103,13 @@ AEWidget * AEWidgetFactory::create(FabricSplice::DGPort port,
 
     std::string dataType = port.getDataType();
 
+    FabricCore::Variant uiMin = port.getOption("uiMin");
+    FabricCore::Variant uiMax = port.getOption("uiMax");
+    if(!uiMin.isNull() && !uiMax.isNull())
+    {
+      dataType += "Slider";      
+    }
+
   	TypeMap::const_iterator it = m_widgetCreatorMap.find(dataType);
   	if(it == m_widgetCreatorMap.end())
   	{

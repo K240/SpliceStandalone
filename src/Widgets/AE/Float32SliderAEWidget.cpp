@@ -85,8 +85,8 @@ void Float32SliderAEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      float bottom = 0.0; // todo
-      float top = 1.0; // todo
+      float bottom = getPortOption("uiMin", 0.0);
+      float top = getPortOption("uiMax", 1.0);
 
       m_validator->setRange(bottom, top, precision);
       m_validator->setNotation(QDoubleValidator::StandardNotation);

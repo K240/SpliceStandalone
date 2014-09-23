@@ -46,13 +46,6 @@ void AttributeEditorWidget::clearAllWidgets()
 
 void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 {
-  printf("AttributeEditorWidget::setWrapper\n");
-
-  if(m_wrapper == wrapper)
-  {
-    return;
-  }
-
   clearAllWidgets();
 
   m_wrapper = wrapper;
@@ -85,7 +78,7 @@ void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
         this , SLOT(widgetValueChanged(std::string)) );
 
     // we silence the uiUpate signal as to double update
-    widget->setSilentUpdate(true);
+    widget->setSilentUpdate(false);
   }
 }
 

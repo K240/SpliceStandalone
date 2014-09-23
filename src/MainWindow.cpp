@@ -186,20 +186,24 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) :
 
 void MainWindow::attributeChanged( QSpliceGraphWrapper wrapper, std::string attributeName )
 {
-  SpliceGraphWrapper::Ptr wrapperPtr = wrapper.wrapper;
-  if(!wrapperPtr)
-    return;
+  FABRIC_TRY("MainWindow::attributeChanged", 
 
-  // update the evaluation context's input table
-  FabricCore::RTVal context = wrapperPtr->getGraph().getEvalContext();
+    SpliceGraphWrapper::Ptr wrapperPtr = wrapper.wrapper;
+    if(!wrapperPtr)
+      return;
 
-  wrapperPtr->dirtyInput(attributeName);
+    // update the evaluation context's input table
+    FabricCore::RTVal context = wrapperPtr->getGraph().getEvalContext();
 
-  // perform an evaluation
-  wrapperPtr->evaluate(true);
-  redraw();
+    wrapperPtr->dirtyInput(attributeName);
 
-  context.callMethod("", "clear", 0, 0);
+    // perform an evaluation
+    wrapperPtr->evaluate(true);
+    redraw();
+
+    context.callMethod("", "_clear", 0, 0);
+
+  );
 }
 
 void MainWindow::timeChanged(int frame)

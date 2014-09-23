@@ -10,6 +10,7 @@
 
 #include "KLEditor.h"
 #include "SpliceStandalone.h"
+#include <macros.h>
 
 using namespace FabricSplice;
 
@@ -62,7 +63,7 @@ void KLEditor::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 
   if(m_editorWrapper)
   {
-    FabricSplice::DGGraph graph = wrapper->getGraph();
+    FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
     std::string opName = graph.getKLOperatorName(0);
     std::string entry = graph.getKLOperatorEntry(opName.c_str());
     std::string code = graph.getKLOperatorSourceCode(opName.c_str());
@@ -88,9 +89,20 @@ void KLEditor::compilePressed()
 {
   if(m_editorWrapper)
   {
-  	std::string currentPath = m_editorWrapper->getPath();
-  	saveEditorCodeToDisk(currentPath);
-  	m_editorWrapper->reload();
+    FABRIC_TRY("KLEditor::compilePressed", 
+
+      FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
+      std::string opName = graph.getKLOperatorName(0);
+      std::string entry = graph.getKLOperatorEntry(opName.c_str());
+      std::string code = m_sourceCodeWidget->getSourceCode();
+      graph.setKLOperatorSourceCode(opName.c_str(), code.c_str(), entry.c_str());
+
+    	std::string currentPath = m_editorWrapper->getPath();
+    	saveEditorCodeToDisk(currentPath);
+      // this really isn't required.
+    	// m_editorWrapper->reload();
+
+    );
   	
   	SpliceStandalone * app = SpliceStandalone::getInstance();
     app->getMainWindow()->reloadedScript();

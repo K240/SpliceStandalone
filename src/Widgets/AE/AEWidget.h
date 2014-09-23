@@ -103,6 +103,9 @@ namespace FabricSplice
 
     /// returns an element of an rtval array
     void rtValSetArrayElement(FabricCore::RTVal & value, unsigned int index, const FabricCore::RTVal & element);
+
+    /// returns an option of a port
+    float getPortOption(const char * key, float defaultValue);
 		
 	protected:
 

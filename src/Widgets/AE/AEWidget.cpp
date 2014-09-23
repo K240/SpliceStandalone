@@ -179,3 +179,18 @@ void AEWidget::rtValSetArrayElement(FabricCore::RTVal & value, unsigned int inde
   else
     value = element;
 }
+
+float AEWidget::getPortOption(const char * key, float defaultValue)
+{
+  if(!m_port.isValid())
+    return defaultValue;
+
+  FabricCore::Variant option = m_port.getOption(key);
+  if(option.isNull())
+    return defaultValue;
+
+  if(!option.isFloat64())
+    return defaultValue;
+
+  return option.getFloat64();
+}

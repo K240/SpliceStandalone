@@ -83,8 +83,8 @@ void SInt32SliderAEWidget::setValueArray(FabricCore::RTVal values)
         delete item;
       }
 
-      int bottom = 0; // todo
-      int top = 100; // todo
+      int bottom = (int)getPortOption("uiMin", 0.0);
+      int top = (int)getPortOption("uiMax", 100.0);
 
       m_validator->setRange(bottom, top);
 

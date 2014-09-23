@@ -38,7 +38,11 @@ void appCompilerErrorFunc(unsigned int row, unsigned int col, const char * file,
   printf("%d, %d, %s: %s\n", row, col, file, desc);
   
   char buf[128];
+#ifdef _WIN32
   itoa(row, buf, 10);
+#else
+  snprintf(buf, 128, "%d", row);
+#endif
 
   std::string stringMessage;
   stringMessage += "[KL Compiler ";

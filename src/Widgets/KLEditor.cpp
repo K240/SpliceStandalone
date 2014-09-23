@@ -99,13 +99,9 @@ void KLEditor::compilePressed()
 
     	std::string currentPath = m_editorWrapper->getPath();
     	saveEditorCodeToDisk(currentPath);
-      // this really isn't required.
-    	// m_editorWrapper->reload();
-
     );
   	
   	SpliceStandalone * app = SpliceStandalone::getInstance();
-    app->getMainWindow()->reloadedScript();
   	app->needRedraw();
   }
 }

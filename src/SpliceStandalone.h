@@ -25,7 +25,7 @@ namespace FabricSplice {
     SpliceStandalone(int &argc, char **argv);
     virtual ~SpliceStandalone();
 
-    SpliceGraphWrapper::Ptr addWrapper(const std::string & klPath);
+    SpliceGraphWrapper::Ptr addWrapper(const std::string & splicePath);
     const std::vector<SpliceGraphWrapper::Ptr> & wrappers();
 
     // this will make sure the main window is created and then raise it

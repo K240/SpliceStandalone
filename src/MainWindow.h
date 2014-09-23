@@ -58,11 +58,7 @@ namespace FabricSplice
     void displayMessage(std::string message);
 
   public slots:
-    void loadScript();
-    
-    void clearAll();
-    void reloadAll();
-    void reloadedScript();
+    void updateViews();
 
     void activateManipulator();
 

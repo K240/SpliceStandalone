@@ -117,10 +117,6 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) :
 
   // file menu
   menu = menuBar->addMenu("File");
-  connect(action = menu->addAction("Load"), SIGNAL(triggered()), this, SLOT(loadScript()));
-  action->setShortcut(QKeySequence("Ctrl+O"));
-  action->setShortcutContext(Qt::ApplicationShortcut);
-  menu->addSeparator();
   connect(action = menu->addAction("Quit"), SIGNAL(triggered()), this, SLOT(close()));
   action->setShortcut(QKeySequence("Alt+F4"));
   action->setShortcutContext(Qt::ApplicationShortcut);
@@ -351,69 +347,19 @@ void MainWindow::redraw()
 	m_glWidget->updateGL();
 }
 
-void MainWindow::loadScript()
-{ 
-  std::string fileName = stdStringFromQString(QFileDialog::getOpenFileName(this,
-       tr("Splice File"), "$HOME", tr("Splice Files (*.splice)")));
-
-  if(fileName.length() == 0)
-    return;
-
-	clearAll();
-
-	SpliceStandalone* app = SpliceStandalone::getInstance();
-	SpliceGraphWrapper::Ptr wrapper = app->addWrapper(fileName);
-
-  for(size_t i=0;i<m_attributeEditors.size();i++)
-    m_attributeEditors[i]->setWrapper(wrapper);
-  for(size_t i=0;i<m_sourceEditors.size();i++)
-    m_sourceEditors[i]->setWrapper(wrapper);
-
-	redraw();
-}
-
-void MainWindow::reloadedScript()
-{ 
-  SpliceStandalone* app = SpliceStandalone::getInstance();
-  if(app->wrappers().size() == 0)
-    return;
-
-  for(size_t i=0;i<m_attributeEditors.size();i++)
-    m_attributeEditors[i]->setWrapper(app->wrappers()[0]);
-
-  // for(size_t i=0;i<m_sourceEditors.size();i++)
-  //   m_sourceEditors[i]->setWrapper(app->wrappers()[0]);
-  redraw();
-}
-
-void MainWindow::clearAll()
+void MainWindow::updateViews()
 { 
 	SpliceStandalone* app = SpliceStandalone::getInstance();
-
-  for(size_t i=0;i<m_logWidgets.size();i++)
-    m_logWidgets[i]->clear();
-  for(size_t i=0;i<m_attributeEditors.size();i++)
+  const std::vector<SpliceGraphWrapper::Ptr> & wrappers = app->wrappers();
+  if(wrappers.size() > 0)
   {
-    m_attributeEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
+    for(size_t i=0;i<m_logWidgets.size();i++)
+      m_logWidgets[i]->clear();
+    for(size_t i=0;i<m_attributeEditors.size();i++)
+      m_attributeEditors[i]->setWrapper(wrappers[0]);
+    for(size_t i=0;i<m_sourceEditors.size();i++)
+      m_sourceEditors[i]->setWrapper(wrappers[0]);
   }
-  for(size_t i=0;i<m_sourceEditors.size();i++)
-  {
-    m_sourceEditors[i]->clear();
-    m_sourceEditors[i]->setWrapper(SpliceGraphWrapper::Ptr());
-  }
-
-  m_glWidget->resetRTVals();
-
-	app->clearAll();
-
-  m_glWidget->updateGL();
-}
-
-void MainWindow::reloadAll()
-{ 
-	SpliceStandalone* app = SpliceStandalone::getInstance();
-	app->reloadAll();
-	m_glWidget->updateGL();
 }
 
 void MainWindow::activateManipulator()

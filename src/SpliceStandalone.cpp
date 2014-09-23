@@ -113,18 +113,20 @@ void SpliceStandalone::displayMessage(std::string message)
     m_mainWindow->displayMessage(message+"\n");
 }
 
-SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & klPath)
+SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & splicePath)
 {
-  SpliceGraphWrapper::Ptr wrapper = SpliceGraphWrapper::Ptr(new SpliceGraphWrapper(klPath));
+  SpliceGraphWrapper::Ptr wrapper = SpliceGraphWrapper::Ptr(new SpliceGraphWrapper(splicePath));
   m_wrappers.push_back(wrapper);
 
   // setup the evaluation context
   FabricCore::RTVal context = wrapper->getGraph().getEvalContext();
   context.setMember("host", FabricSplice::constructStringRTVal("Splice Standalone"));
-  context.setMember("graph", FabricSplice::constructStringRTVal(klPath.c_str()));
+  context.setMember("graph", FabricSplice::constructStringRTVal(splicePath.c_str()));
+
+  if(m_mainWindow)
+    m_mainWindow->updateViews();
   
   return wrapper;
-
 }
 
 const std::vector<SpliceGraphWrapper::Ptr> & SpliceStandalone::wrappers()

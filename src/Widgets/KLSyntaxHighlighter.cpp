@@ -130,14 +130,13 @@ KLSyntaxHighlighter::KLSyntaxHighlighter(QTextDocument * document)
   rule.format = singleLineCommentFormat;
   highlightingRules.append(rule);
 
-  rule.pattern = QRegExp("\\b[0-9]+\\.?[0-9]*");
-  rule.format = numberFormat;
-  highlightingRules.append(rule);
-
-  rule.pattern = QRegExp("\"([^\"']*)\"");
+  rule.pattern = QRegExp("\\\"([^\\\"]|\\\\.)*\\\"");
   rule.format = quotationFormat;
   highlightingRules.append(rule);
 
+  rule.pattern = QRegExp("\\\'([^\\\']|\\\\.)*\\\'");
+  rule.format = quotationFormat;
+  highlightingRules.append(rule);
 
   commentStartExpression = QRegExp("/\\*");
   commentEndExpression = QRegExp("\\*/");

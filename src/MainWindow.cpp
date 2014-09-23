@@ -75,6 +75,11 @@ bool MainWindowKeyFilter::eventFilter(QObject* object, QEvent* event)
         m_window->m_glWidget->resetCameraPosition();
         return true;
       }
+      case Qt::Key_Q:
+      {
+        m_window->activateManipulator();
+        return true;
+      }
     }
   }
 

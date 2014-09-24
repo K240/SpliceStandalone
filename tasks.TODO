@@ -6,6 +6,6 @@
  ✔ all sample scripts should use drawinghandle @done (14-09-23 13:59)
  ✔ sliders should be used if uiMin and uiMax exist... @done (14-09-23 13:59)
  ✔ document standalone @done (14-09-23 15:51)
- ☐ create more samples
+ ✔ create more samples @done (14-09-24 09:57)
  ☐ complete gpu compute sample
- ☐ test manipulation
+ ✔ test manipulation @done (14-09-24 09:57)

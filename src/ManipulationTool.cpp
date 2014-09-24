@@ -1,3 +1,4 @@
+#include <QtGui/QApplication>
 #include <QtGui/QWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
@@ -123,8 +124,12 @@ bool ManipulationTool::onEvent(QEvent *event)
   {
     return false;
   }
-  // Now we translate the Qt events to FabricEngine events..
 
+  // skip the alt key, so that we can continue to use the camera
+  if(QApplication::keyboardModifiers().testFlag(Qt::AltModifier))
+    return false;
+
+  // Now we translate the Qt events to FabricEngine events..
   FabricCore::RTVal klevent;
 
   if(event->type() == QEvent::Enter)

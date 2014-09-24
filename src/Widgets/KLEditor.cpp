@@ -40,7 +40,7 @@ KLEditor::KLEditor(QWidget* pParent)
 	klButtons->setLayout(new QHBoxLayout());
 	klButtons->layout()->setContentsMargins(0, 0, 0, 0);
 
-	QPushButton * compileButton = new QPushButton("Compile", klButtons);
+	QPushButton * compileButton = new QPushButton("Compile and Save", klButtons);
 	klButtons->layout()->addWidget(compileButton);
   connect(compileButton, SIGNAL(clicked()), this, SLOT(compilePressed()));
 

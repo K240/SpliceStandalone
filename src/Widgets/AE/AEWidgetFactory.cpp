@@ -113,7 +113,6 @@ AEWidget * AEWidgetFactory::create(FabricSplice::DGPort port,
   	TypeMap::const_iterator it = m_widgetCreatorMap.find(dataType);
   	if(it == m_widgetCreatorMap.end())
   	{
-  		std::cout << "No registration exists for type " << dataType << std::endl;
   		return NULL;
   	}
   	else

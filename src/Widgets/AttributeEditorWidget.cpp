@@ -67,7 +67,6 @@ void AttributeEditorWidget::setWrapper(SpliceGraphWrapper::Ptr wrapper)
     AEWidget * widget = factory.create(port);
     if(!widget)
     {
-      printf("Warning: Widget for dataType '%s' not available.\n", port.getDataType());
       continue;
     }
 

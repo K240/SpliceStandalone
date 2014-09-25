@@ -73,7 +73,7 @@ SpliceStandalone * SpliceStandalone::getInstance()
   return gApplication;
 }
 
-SpliceStandalone::SpliceStandalone(int &argc, char **argv) 
+SpliceStandalone::SpliceStandalone(int &argc, char **argv, std::string spliceFilePath) 
   : QApplication(argc, argv)
 {
 
@@ -101,6 +101,9 @@ SpliceStandalone::SpliceStandalone(int &argc, char **argv)
 
   Logging::setCompilerErrorFunc(appCompilerErrorFunc);
   Logging::setKLStatusFunc(appKLStatusFunc);
+
+  if(spliceFilePath.length())
+    addWrapper(spliceFilePath);
 }
 
 SpliceStandalone::~SpliceStandalone()

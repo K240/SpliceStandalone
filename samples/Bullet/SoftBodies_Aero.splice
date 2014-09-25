@@ -1,0 +1,75 @@
+{
+  "version": "1013000",
+  "info": {
+    "hostAppName": "Splice Standalone",
+    "hostAppVersion": "1.0"
+  },
+  "nodes": [
+    {
+      "name": "DGNode",
+      "dependencies": {},
+      "bindings": [
+        {
+          "operator": {
+            "name": "bulletOp",
+            "entry": "bulletOp",
+            "filename": "bulletOp.kl",
+            "kl": "require InlineDrawing;\nrequire BulletHelpers;\n\nfunction Vec3 randomVec3(io Size offset, Scalar scale)\n{\n  const Size seed = 16841;\n  Vec3 p(\n    mathRandomFloat32(seed, offset++),\n    mathRandomFloat32(seed, offset++),\n    mathRandomFloat32(seed, offset++)\n    );\n  return p * scale;\n}\n\nfunction Init_Aero(io SoftBodySimulation sim, Integer count)\n{\n  sim.initPhysics();\n  sim.createFlatGround(0.0);\n  BulletSoftRigidDynamicsWorld softWorld = sim.getSoftDynamicsWorld();\n  const Scalar  s=2;\n  const Scalar  h=10;\n  const Integer segments=6;\n  Size      randoffset = 0;\n  for(Integer i=0;i<count;++i)\n  {\n    // create a cloth\n    PolygonMesh cloth();\n    cloth.addPlane(Xfo(), s*2.0, s*2.0, segments, segments);\n    Vec3 positions[] = cloth.getAttributes().getPositions().values;\n    positions.resize(cloth.pointCount());\n    UInt32 triangles[] = cloth.generateTriangleList();\n    BulletSoftBody  psb=BulletSoftBodyHelpers_CreateFromTriMesh(sim.softBodyWorldInfo, positions, triangles, false);\n    BulletSoftBodyMaterial  pm=psb.appendMaterial();\n    psb.generateBendingConstraints(2,pm);\n    BulletSoftBodyConfig cfg = psb.getConfig();\n    cfg.setLF(0.004);\n    cfg.setDG(0.0003);\n    cfg.setAeromodel(BulletSoftBody_eAeroModel_V_TwoSided);\n    Xfo trs;\n    Vec3 ra=  randomVec3(randoffset, 1.0).unit() * 0.2;\n    trs.setIdentity();\n    trs.tr = randomVec3(randoffset, Scalar(count)*0.3) + Vec3(0,20,-40);\n    trs.ori.setFromEulerAngles(Vec3(PI/8 + ra.x,-PI/7 + ra.y,ra.z));\n    psb.transform(trs);\n    psb.setTotalMass(0.1);\n    psb.addForce(Vec3(0,2,0),0);\n    sim.addSoftBody(psb, cloth);\n  }\n  sim.setupDebugDrawing();\n}\n\noperator bulletOp(io DrawingHandle handle, io SoftBodySimulation sim, in Scalar time, in Scalar gravity)\n{\n  if(!sim.initialized){\n    Init_Aero(sim, 200);\n  }\n  \n  if(time <= 1.0){\n    sim.resetSimulation();\n    sim.dynamicsWorld.setGravity(Vec3(0,-gravity,0));\n  }\n  else{\n    sim.stepSimulation();\n  }\n}\n",
+            "portmap": {}
+          }
+        }
+      ]
+    }
+  ],
+  "extensions": [
+    "Bullet",
+    "BulletHelpers"
+  ],
+  "ports": [
+    {
+      "name": "gravity",
+      "node": "DGNode",
+      "graph": "SoftBodies_Aero",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "gravity",
+      "mode": "io",
+      "options": {
+        "uiMax": 25,
+        "uiMin": 0.001
+      },
+      "persistence": true,
+      "default": "5"
+    },
+    {
+      "name": "handle",
+      "node": "DGNode",
+      "graph": "SoftBodies_Aero",
+      "type": "DrawingHandle",
+      "autoInitObjects": true,
+      "member": "handle",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "sim",
+      "node": "DGNode",
+      "graph": "SoftBodies_Aero",
+      "type": "SoftBodySimulation",
+      "autoInitObjects": true,
+      "member": "sim",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "time",
+      "node": "DGNode",
+      "graph": "SoftBodies_Aero",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "time",
+      "mode": "in",
+      "persistence": false
+    }
+  ]
+}

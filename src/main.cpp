@@ -62,10 +62,9 @@ int main(int argc, char *argv[])
   }
   fclose(f);
 
-	SpliceStandalone app(argc, argv);
+	SpliceStandalone app(argc, argv, spliceFilePath);
 	app.showMainWindow();
 	app.setupFusionLook();
-  app.addWrapper(spliceFilePath);
 
 	// Blocks until application decides to quit.
 	app.exec();

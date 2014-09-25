@@ -1,0 +1,75 @@
+{
+  "version": "1013000",
+  "info": {
+    "hostAppName": "Splice Standalone",
+    "hostAppVersion": "1.0"
+  },
+  "nodes": [
+    {
+      "name": "DGNode",
+      "dependencies": {},
+      "bindings": [
+        {
+          "operator": {
+            "name": "bulletOp",
+            "entry": "bulletOp",
+            "filename": "bulletOp.kl",
+            "kl": "require InlineDrawing;\nrequire BulletHelpers;\n\nfunction Init_RigidBodyStack(io RigidBodySimulation sim, Integer count)\n{\n  sim.initPhysics();\n\n  sim.createGround();\n\n  Scalar        mass = 10;\n\n  Vec3 compoundCylinderDim = Vec3(4,1,1);\n  Vec3 compoundBoxDim = Vec3(1,4,1);\n  Vec3 boxDim = Vec3(1,1,1);\n  Scalar sphereRadius = 1.5;\n\n  BulletCompoundShape compoundShape =  BulletCompoundShape();\n  BulletCollisionShape cylinderShape = BulletCylinderShapeX(compoundCylinderDim);\n  BulletCollisionShape boxShape =  BulletBoxShape(compoundBoxDim);\n\n  compoundShape.addChildShape(Xfo(), cylinderShape);\n  compoundShape.addChildShape(Xfo(), boxShape);\n\n  BulletCollisionShape  shapes[];\n  shapes.push(compoundShape);\n  shapes.push(BulletBoxShape(boxDim));\n  shapes.push(BulletSphereShape(sphereRadius));\n\n  PolygonMesh compoundMesh();\n  compoundMesh.addCylinder(Xfo(Quat(Euler(Vec3(0, 0, HALF_PI)))), compoundCylinderDim.y, compoundCylinderDim.x * 2.0, true, 8, 2, true, false);\n  compoundMesh.addCuboid(Xfo(), compoundBoxDim.x * 2.0, compoundBoxDim.y * 2.0, compoundBoxDim.z * 2.0, true, false);\n  compoundMesh.recomputePointNormals();\n\n  PolygonMesh cuboidMesh(); \n  cuboidMesh.addCuboid(Xfo(), boxDim.x * 2.0, boxDim.y * 2.0, boxDim.z * 2.0);\n  cuboidMesh.recomputePointNormals();\n\n  PolygonMesh sphereMesh(); \n  sphereMesh.addSphere(Xfo(), sphereRadius, 12);\n  sphereMesh.recomputePointNormals();\n\n\n\n  PolygonMesh meshes[];\n  meshes.push(compoundMesh);\n  meshes.push(cuboidMesh);\n  meshes.push(sphereMesh);\n\n  for(Integer i=0;i<count;++i)\n  {\n    sim.addRigidBody(mass, Xfo(Vec3(0,6+6*i,0)), shapes[i%shapes.size()], meshes[i%meshes.size()]);\n  }\n  sim.setupDebugDrawing();\n}\n\noperator bulletOp(io DrawingHandle handle, io RigidBodySimulation sim, in Scalar time, in Scalar gravity)\n{\n  if(!sim.initialized){\n    Init_RigidBodyStack(sim, 300);\n  }\n  \n  if(time <= 1.0){\n    sim.resetSimulation();\n    sim.dynamicsWorld.setGravity(Vec3(0,-gravity,0));\n  }\n  else{\n    sim.stepSimulation();\n  }\n}\n",
+            "portmap": {}
+          }
+        }
+      ]
+    }
+  ],
+  "extensions": [
+    "Bullet",
+    "BulletHelpers"
+  ],
+  "ports": [
+    {
+      "name": "gravity",
+      "node": "DGNode",
+      "graph": "RigidBodies_RigidBodyStack",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "gravity",
+      "mode": "io",
+      "options": {
+        "uiMax": 25,
+        "uiMin": 0.001
+      },
+      "persistence": true,
+      "default": "5"
+    },
+    {
+      "name": "handle",
+      "node": "DGNode",
+      "graph": "RigidBodies_RigidBodyStack",
+      "type": "DrawingHandle",
+      "autoInitObjects": true,
+      "member": "handle",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "sim",
+      "node": "DGNode",
+      "graph": "RigidBodies_RigidBodyStack",
+      "type": "RigidBodySimulation",
+      "autoInitObjects": true,
+      "member": "sim",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "time",
+      "node": "DGNode",
+      "graph": "RigidBodies_RigidBodyStack",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "time",
+      "mode": "in",
+      "persistence": false
+    }
+  ]
+}

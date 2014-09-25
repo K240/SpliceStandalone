@@ -22,7 +22,7 @@ namespace FabricSplice {
 
   public:
 
-    SpliceStandalone(int &argc, char **argv);
+    SpliceStandalone(int &argc, char **argv, std::string spliceFilePath = "");
     virtual ~SpliceStandalone();
 
     SpliceGraphWrapper::Ptr addWrapper(const std::string & splicePath);

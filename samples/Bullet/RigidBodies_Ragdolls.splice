@@ -1,0 +1,75 @@
+{
+  "version": "1013000",
+  "info": {
+    "hostAppName": "Splice Standalone",
+    "hostAppVersion": "1.0"
+  },
+  "nodes": [
+    {
+      "name": "DGNode",
+      "dependencies": {},
+      "bindings": [
+        {
+          "operator": {
+            "name": "bulletOp",
+            "entry": "bulletOp",
+            "filename": "bulletOp.kl",
+            "kl": "require InlineDrawing;\nrequire BulletHelpers;\n\nconst Integer BODYPART_PELVIS = 0;\nconst Integer BODYPART_SPINE = 1;\nconst Integer BODYPART_HEAD = 2;\nconst Integer BODYPART_LEFT_UPPER_LEG = 3;\nconst Integer BODYPART_LEFT_LOWER_LEG = 4;\nconst Integer BODYPART_RIGHT_UPPER_LEG = 5;\nconst Integer BODYPART_RIGHT_LOWER_LEG = 6;\nconst Integer BODYPART_LEFT_UPPER_ARM = 7;\nconst Integer BODYPART_LEFT_LOWER_ARM = 8;\nconst Integer BODYPART_RIGHT_UPPER_ARM = 9;\nconst Integer BODYPART_RIGHT_LOWER_ARM = 10;\nconst Integer BODYPART_COUNT = 11;\nconst Integer JOINT_PELVIS_SPINE = 0;\nconst Integer JOINT_SPINE_HEAD = 1;\nconst Integer JOINT_LEFT_HIP = 2;\nconst Integer JOINT_LEFT_KNEE = 3;\nconst Integer JOINT_RIGHT_HIP = 4;\nconst Integer JOINT_RIGHT_KNEE = 5;\nconst Integer JOINT_LEFT_SHOULDER = 6;\nconst Integer JOINT_LEFT_ELBOW = 7;\nconst Integer JOINT_RIGHT_SHOULDER = 8;\nconst Integer JOINT_RIGHT_ELBOW = 9;\nconst Integer JOINT_COUNT = 10;\n\nobject BulletRagdoll {\n  Color color;\n  BulletCollisionShape  shapes[];\n  RigidBodyMesh         bodies[];\n  BulletTypedConstraint joints[];\n};\n\nfunction BulletRagdoll.addBodyPart!(io RigidBodySimulation sim, Integer index, Xfo xfo)\n{\n  BulletCapsuleShape shape = this.shapes[index];\n  Lines lines();\n  Scalar radius = shape.getRadius();\n  Scalar height = shape.getHalfHeight() * 2.0;\n  lines.addCapsule(Xfo(), radius, height, 24);\n  this.bodies[index] = sim.addRigidBody(1.0, xfo, shape, lines, this.color);\n}\n\nfunction BulletRagdoll (io RigidBodySimulation sim, Xfo offset, Color color)\n{\n  this.color = color;\n  // Setup the geometry\n  this.shapes.resize(BODYPART_COUNT);\n  this.shapes[BODYPART_PELVIS] = BulletCapsuleShape(0.15, 0.20);\n  this.shapes[BODYPART_SPINE] = BulletCapsuleShape(0.15, 0.28);\n  this.shapes[BODYPART_HEAD] = BulletCapsuleShape(0.10, 0.05);\n  this.shapes[BODYPART_LEFT_UPPER_LEG] = BulletCapsuleShape(0.07, 0.45);\n  this.shapes[BODYPART_LEFT_LOWER_LEG] = BulletCapsuleShape(0.05, 0.37);\n  this.shapes[BODYPART_RIGHT_UPPER_LEG] = BulletCapsuleShape(0.07, 0.45);\n  this.shapes[BODYPART_RIGHT_LOWER_LEG] = BulletCapsuleShape(0.05, 0.37);\n  this.shapes[BODYPART_LEFT_UPPER_ARM] = BulletCapsuleShape(0.05, 0.33);\n  this.shapes[BODYPART_LEFT_LOWER_ARM] = BulletCapsuleShape(0.04, 0.25);\n  this.shapes[BODYPART_RIGHT_UPPER_ARM] = BulletCapsuleShape(0.05, 0.33);\n  this.shapes[BODYPART_RIGHT_LOWER_ARM] = BulletCapsuleShape(0.04, 0.25);\n  // Setup all the rigid bodies\n  this.bodies.resize(BODYPART_COUNT);\n  Xfo transform;\n  transform.setIdentity();\n  transform.tr = Vec3(0.0, 1.0, 0.0);\n  this.addBodyPart(sim, BODYPART_PELVIS, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(0.0, 1.2, 0.0);\n  this.addBodyPart(sim, BODYPART_SPINE, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(0.0, 1.6, 0.0);\n  this.addBodyPart(sim, BODYPART_HEAD, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(-0.18, 0.65, 0.0);\n  this.addBodyPart(sim, BODYPART_LEFT_UPPER_LEG, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(-0.18, 0.2, 0.0);\n  this.addBodyPart(sim, BODYPART_LEFT_LOWER_LEG, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(0.18, 0.65, 0.0);\n  this.addBodyPart(sim, BODYPART_RIGHT_UPPER_LEG, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(0.18, 0.2, 0.0);\n  this.addBodyPart(sim, BODYPART_RIGHT_LOWER_LEG, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(-0.35, 1.45, 0.0);\n  transform.ori.setFromEuler(Euler(0.0, 0.0, HALF_PI, RotationOrder('ZYX')));\n  this.addBodyPart(sim, BODYPART_LEFT_UPPER_ARM, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(-0.7, 1.45, 0.0);\n  transform.ori.setFromEuler(Euler(0.0, 0.0, HALF_PI, RotationOrder('ZYX')));\n  this.addBodyPart(sim, BODYPART_LEFT_LOWER_ARM, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(0.35, 1.45, 0.0);\n  transform.ori.setFromEuler(Euler(0,0,-HALF_PI, RotationOrder('ZYX')));\n  this.addBodyPart(sim, BODYPART_RIGHT_UPPER_ARM, offset*transform);\n  transform.setIdentity();\n  transform.tr = Vec3(0.7, 1.45, 0.0);\n  transform.ori.setFromEuler(Euler(0,0,-HALF_PI, RotationOrder('ZYX')));\n  this.addBodyPart(sim, BODYPART_RIGHT_LOWER_ARM, offset*transform);\n  // Setup some damping on the this.bodies\n  for (Integer i = 0; i < BODYPART_COUNT; ++i)\n  {\n    this.bodies[i].body.setDamping(0.05, 0.85);\n    this.bodies[i].body.setDeactivationTime(0.8);\n    this.bodies[i].body.setSleepingThresholds(1.6, 2.5);\n  }\n  // Now setup the constraints\n  this.joints.resize(JOINT_COUNT);\n  Xfo localA, localB;\n  localA.setIdentity(); localB.setIdentity();\n  {\n    localA.ori.setFromEuler(Euler(0.0, HALF_PI, 0.0, RotationOrder('ZYX'))); localA.tr = Vec3(0.0, 0.15, 0.0);\n    localB.ori.setFromEuler(Euler(0.0, HALF_PI, 0.0, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, -0.15, 0.0);\n    BulletHingeConstraint hingeC(this.bodies[BODYPART_PELVIS].body, this.bodies[BODYPART_SPINE].body, localA, localB);//\n    hingeC.setLimit(-QUARTER_PI, HALF_PI);\n    this.joints[JOINT_PELVIS_SPINE] = hingeC;\n    //hingeC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0,0, HALF_PI, RotationOrder('ZYX'))); localA.tr = Vec3(0.0, 0.30, 0.0);\n    localB.ori.setFromEuler(Euler(0,0, HALF_PI, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, -0.14, 0.0);\n    BulletConeTwistConstraint coneC(this.bodies[BODYPART_SPINE].body, this.bodies[BODYPART_HEAD].body, localA, localB);\n    coneC.setLimit(QUARTER_PI, QUARTER_PI, HALF_PI);\n    this.joints[JOINT_SPINE_HEAD] = coneC;\n    //coneC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0,0,-QUARTER_PI*5, RotationOrder('ZYX'))); localA.tr = Vec3(-0.18, -0.10, 0.0);\n    localB.ori.setFromEuler(Euler(0,0,-QUARTER_PI*5, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, 0.225, 0.0);\n    BulletConeTwistConstraint coneC(this.bodies[BODYPART_PELVIS].body, this.bodies[BODYPART_LEFT_UPPER_LEG].body, localA, localB);\n    coneC.setLimit(QUARTER_PI, QUARTER_PI, 0);\n    this.joints[JOINT_LEFT_HIP] = coneC;\n    //coneC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0.0, HALF_PI, 0.0, RotationOrder('ZYX'))); localA.tr = Vec3(0.0, -0.225, 0.0);\n    localB.ori.setFromEuler(Euler(0.0, HALF_PI, 0.0, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, 0.185, 0.0);\n    BulletHingeConstraint hingeC(this.bodies[BODYPART_LEFT_UPPER_LEG].body, this.bodies[BODYPART_LEFT_LOWER_LEG].body, localA, localB);\n    hingeC.setLimit(0, HALF_PI);\n    this.joints[JOINT_LEFT_KNEE] = hingeC;\n    //hingeC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0, 0, QUARTER_PI, RotationOrder('ZYX'))); localA.tr = Vec3(0.18, -0.10, 0.0);\n    localB.ori.setFromEuler(Euler(0, 0, QUARTER_PI, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, 0.225, 0.0);\n    BulletConeTwistConstraint coneC(this.bodies[BODYPART_PELVIS].body, this.bodies[BODYPART_RIGHT_UPPER_LEG].body, localA, localB);\n    coneC.setLimit(QUARTER_PI, QUARTER_PI, 0);\n    this.joints[JOINT_RIGHT_HIP] = coneC;\n    //coneC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0.0, HALF_PI,0.0, RotationOrder('ZYX'))); localA.tr = Vec3(0.0, -0.225, 0.0);\n    localB.ori.setFromEuler(Euler(0.0, HALF_PI,0.0, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, 0.185, 0.0);\n    BulletHingeConstraint hingeC = BulletHingeConstraint(this.bodies[BODYPART_RIGHT_UPPER_LEG].body, this.bodies[BODYPART_RIGHT_LOWER_LEG].body, localA, localB);\n    hingeC.setLimit(0, HALF_PI);\n    this.joints[JOINT_RIGHT_KNEE] = hingeC;\n    //hingeC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0,0, PI, RotationOrder('ZYX'))); localA.tr = Vec3(-0.2, 0.15, 0.0);\n    localB.ori.setFromEuler(Euler(0,0, HALF_PI, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, -0.18, 0.0);\n    BulletConeTwistConstraint coneC(this.bodies[BODYPART_SPINE].body, this.bodies[BODYPART_LEFT_UPPER_ARM].body, localA, localB);\n    coneC.setLimit(HALF_PI, HALF_PI, 0);\n    this.joints[JOINT_LEFT_SHOULDER] = coneC;\n    //coneC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0.0, HALF_PI,0.0, RotationOrder('ZYX'))); localA.tr = Vec3(0.0, 0.18, 0.0);\n    localB.ori.setFromEuler(Euler(0.0, HALF_PI,0.0, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, -0.14, 0.0);\n    BulletHingeConstraint hingeC(this.bodies[BODYPART_LEFT_UPPER_ARM].body, this.bodies[BODYPART_LEFT_LOWER_ARM].body, localA, localB);\n  //    hingeC.setLimit(HALF_PI, 0));\n    hingeC.setLimit(0, HALF_PI);\n    this.joints[JOINT_LEFT_ELBOW] = hingeC;\n    //hingeC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0,0,0, RotationOrder('ZYX'))); localA.tr = Vec3(0.2, 0.15, 0.0);\n    localB.ori.setFromEuler(Euler(0,0, HALF_PI, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, -0.18, 0.0);\n    BulletConeTwistConstraint coneC(this.bodies[BODYPART_SPINE].body, this.bodies[BODYPART_RIGHT_UPPER_ARM].body, localA, localB);\n    coneC.setLimit(HALF_PI, HALF_PI, 0);\n    this.joints[JOINT_RIGHT_SHOULDER] = coneC;\n    //coneC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  {\n    localA.setIdentity(); localB.setIdentity();\n    localA.ori.setFromEuler(Euler(0.0, HALF_PI,0.0, RotationOrder('ZYX'))); localA.tr = Vec3(0.0, 0.18, 0.0);\n    localB.ori.setFromEuler(Euler(0.0, HALF_PI,0.0, RotationOrder('ZYX'))); localB.tr = Vec3(0.0, -0.14, 0.0);\n    BulletHingeConstraint hingeC(this.bodies[BODYPART_RIGHT_UPPER_ARM].body, this.bodies[BODYPART_RIGHT_LOWER_ARM].body, localA, localB);\n  //    hingeC.setLimit(HALF_PI, 0));\n    hingeC.setLimit(0, HALF_PI);\n    this.joints[JOINT_RIGHT_ELBOW] = hingeC;\n    //hingeC.setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);\n  }\n  for(Integer i=0; i<this.joints.size(); i++){\n    sim.dynamicsWorld.addConstraint(this.joints[i], true);\n  }\n}\n\noperator bulletOp(io DrawingHandle handle, io RigidBodySimulation sim, in Scalar time, in Scalar gravity)\n{\n  if(!sim.initialized){\n    sim.initPhysics();\n    sim.createGround();\n\n    UInt32 count = 200;\n    UInt32 seed = 1243;\n    UInt32 gen = 0;\n    Integer gridDim = sqrt(Scalar(count))+1;\n    Scalar spacing = 1.6;\n    Integer index = 0;\n    for(Integer i=0; i<gridDim; i++){\n      for(Integer j=0; j<gridDim; j++){\n        if(index >= count){\n          continue;\n        }\n        Xfo xfo;\n        xfo.tr.x = (i * spacing) - (spacing * gridDim * 0.5);\n        xfo.tr.y = 0.05;\n        xfo.tr.z = (j * spacing) - (spacing * gridDim * 0.5);\n        xfo.ori.setFromAxisAndAngle(Vec3(0.0, 1.0, 0.0), mathRandomScalar(seed, gen++) * TWO_PI);\n        BulletRagdoll(sim, xfo, randomColor(217, index));\n        index++;\n      }\n    }\n    sim.setupDebugDrawing();\n    sim.initialized = true;\n  }\n  \n  if(time <= 1.0){\n    sim.resetSimulation();\n    sim.dynamicsWorld.setGravity(Vec3(0,-gravity,0));\n  }\n  else{\n    sim.stepSimulation();\n  }\n}\n",
+            "portmap": {}
+          }
+        }
+      ]
+    }
+  ],
+  "extensions": [
+    "Bullet",
+    "BulletHelpers"
+  ],
+  "ports": [
+    {
+      "name": "gravity",
+      "node": "DGNode",
+      "graph": "RigidBodies_Ragdolls",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "gravity",
+      "mode": "io",
+      "options": {
+        "uiMax": 25,
+        "uiMin": 0.001
+      },
+      "persistence": true,
+      "default": "5"
+    },
+    {
+      "name": "handle",
+      "node": "DGNode",
+      "graph": "RigidBodies_Ragdolls",
+      "type": "DrawingHandle",
+      "autoInitObjects": true,
+      "member": "handle",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "sim",
+      "node": "DGNode",
+      "graph": "RigidBodies_Ragdolls",
+      "type": "RigidBodySimulation",
+      "autoInitObjects": true,
+      "member": "sim",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "time",
+      "node": "DGNode",
+      "graph": "RigidBodies_Ragdolls",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "time",
+      "mode": "in",
+      "persistence": false
+    }
+  ]
+}

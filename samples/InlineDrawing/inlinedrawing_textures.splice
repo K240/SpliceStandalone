@@ -1,0 +1,78 @@
+{
+  "version": "1013000",
+  "info": {
+    "hostAppName": "Splice Standalone",
+    "hostAppVersion": "1.0"
+  },
+  "nodes": [
+    {
+      "name": "DGNode",
+      "dependencies": {},
+      "bindings": [
+        {
+          "operator": {
+            "name": "textureOp",
+            "entry": "textureOp",
+            "filename": "textureOp.kl",
+            "kl": "require InlineDrawing;\n\noperator textureOp(io DrawingHandle handle, io Vec3 result, in Scalar x, in Scalar y) {\n\n  if(handle.isEmpty()) {\n    OGLInlineDrawing draw = handle.getDrawing();\n    InlineShader shader = draw.registerShader(OGLFlatTextureShader());\n    InlineMaterial mat = shader.getOrCreateMaterial('mat');\n    \n    InlineProceduralTexture texture = draw.registerTexture(InlineProceduralTexture('sinusbased'));\n    mat.setUniform('u_texture', texture);\n    handle.setMetaData('texture', texture);\n\n    PolygonMesh plane = PolygonMesh();\n    plane.addPlane(Xfo(), 10, 10, 3, 3, true, true);\n    InlineShape shape = draw.registerShape(InlineMeshShape('plane', plane));\n\n    mat.addInstance(SimpleInlineInstance('plane', handle.getRootTransform(), shape));\n  }\n\n  Size width = 512;\n  Color pixels[];\n  pixels.resize(width * width);\n\n  for(Size i=0;i<pixels.size();i++) {\n    Scalar xc = Scalar(i % width) / Scalar(width);\n    Scalar yc = Scalar(i / width) / Scalar(width);\n    pixels[i].r = 0.5 + 0.5 * sin(xc * x);\n    pixels[i].g = 0.5 + 0.5 * sin(yc * y);\n    pixels[i].a = 1.0;\n  }\n  \n  InlineProceduralTexture texture = handle.getMetaData('texture');\n  texture.update(width, width, pixels);\n}\n",
+            "portmap": {}
+          }
+        }
+      ]
+    }
+  ],
+  "extensions": [],
+  "ports": [
+    {
+      "name": "handle",
+      "node": "DGNode",
+      "graph": "inlinedrawing_textures",
+      "type": "DrawingHandle",
+      "autoInitObjects": true,
+      "member": "handle",
+      "mode": "io",
+      "persistence": false
+    },
+    {
+      "name": "result",
+      "node": "DGNode",
+      "graph": "inlinedrawing_textures",
+      "type": "Vec3",
+      "autoInitObjects": true,
+      "member": "result",
+      "mode": "out",
+      "persistence": true,
+      "default": "{\"x\":0,\"y\":0,\"z\":0}"
+    },
+    {
+      "name": "x",
+      "node": "DGNode",
+      "graph": "inlinedrawing_textures",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "x",
+      "mode": "in",
+      "options": {
+        "uiMax": 50,
+        "uiMin": 0
+      },
+      "persistence": true,
+      "default": "0.5"
+    },
+    {
+      "name": "y",
+      "node": "DGNode",
+      "graph": "inlinedrawing_textures",
+      "type": "Scalar",
+      "autoInitObjects": true,
+      "member": "y",
+      "mode": "in",
+      "options": {
+        "uiMax": 50,
+        "uiMin": 0
+      },
+      "persistence": true,
+      "default": "0.5"
+    }
+  ]
+}

@@ -117,11 +117,24 @@ SpliceStandalone::~SpliceStandalone()
 void SpliceStandalone::displayMessage(std::string message)
 {
   if (m_mainWindow)
+  {
     m_mainWindow->displayMessage(message+"\n");
+    processEvents();
+  }
 }
 
 SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & splicePath)
 {
+  if(m_splashScreen)
+  {
+    m_splashScreen->finish(m_mainWindow);
+    m_splashScreen = NULL;
+  }
+
+  QPixmap pixmap((m_appPath / "images" / "loading.jpg").string().c_str());
+  m_splashScreen = new QSplashScreen(pixmap);
+  m_splashScreen->show();
+
   SpliceGraphWrapper::Ptr wrapper = SpliceGraphWrapper::Ptr(new SpliceGraphWrapper(splicePath));
   m_wrappers.push_back(wrapper);
 
@@ -132,6 +145,12 @@ SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & spliceP
 
   if(m_mainWindow)
     m_mainWindow->updateViews();
+
+  if(m_splashScreen)
+  {
+    m_splashScreen->finish(m_mainWindow);
+    m_splashScreen = NULL;
+  }
   
   return wrapper;
 }
@@ -153,12 +172,14 @@ void SpliceStandalone::showMainWindow()
   m_mainWindow = new MainWindow(0,flags);
 
   m_mainWindow->resize(1600,1000);
-
-
   m_mainWindow->showMaximized();
   m_mainWindow->raise();
 
-  m_splashScreen->finish(m_mainWindow);
+  if(m_splashScreen)
+  {
+    m_splashScreen->finish(m_mainWindow);
+    m_splashScreen = NULL;
+  }
 }
 
 MainWindow * SpliceStandalone::getMainWindow()
@@ -178,9 +199,9 @@ void SpliceStandalone::constructFabricClient()
       return;
     }
 
-    client.loadExtension("SpliceStandalone", false);
-    client.loadExtension("InlineDrawing", false);
-    client.loadExtension("Animation", false);
+    client.loadExtension("SpliceStandalone", "", false);
+    client.loadExtension("InlineDrawing", "", false);
+    client.loadExtension("Animation", "", false);
 
   );
 }

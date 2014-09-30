@@ -87,9 +87,6 @@ SpliceStandalone::SpliceStandalone(int &argc, char **argv, std::string spliceFil
   QPixmap pixmap((m_appPath / "images" / "splash.jpg").string().c_str());
   m_splashScreen = new QSplashScreen(pixmap);
   m_splashScreen->show();
-
-  boost::filesystem::path extsDir = m_appPath / "Exts";
-  addExtFolder(extsDir.string().c_str());
   
   Initialize(); 
 

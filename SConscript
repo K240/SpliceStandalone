@@ -83,7 +83,7 @@ sources = env.Glob('src/*.cpp')
 sources += env.Glob('src/Widgets/*.cpp')
 sources += env.Glob('src/Widgets/AE/*.cpp')
 
-target = 'FabricSpliceStandalone' + FABRIC_SPLICE_VERSION
+target = 'splice'
 
 if FABRIC_BUILD_OS == 'Linux':
   env[ '_LIBFLAGS' ] = '-Wl,--start-group ' + env['_LIBFLAGS'] + ' -Wl,--end-group'

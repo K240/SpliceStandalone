@@ -193,16 +193,9 @@ void SpliceStandalone::constructFabricClient()
 
     FabricCore::Client client = ConstructClient();
 
-    if(!isLicenseValid())
-    {
-      quit();
-      return;
-    }
-
-    client.loadExtension("SpliceStandalone", "", false);
-    client.loadExtension("InlineDrawing", "", false);
     client.loadExtension("Animation", "", false);
-
+    client.loadExtension("InlineDrawing", "", false);
+    client.loadExtension("SpliceStandalone", "", false);
   );
 }
 

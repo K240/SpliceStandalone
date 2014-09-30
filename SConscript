@@ -22,13 +22,14 @@ env.Append(LIBS = parentEnv['LIBS'])
 
 qtFlags = {
   'CPPPATH': [
-      QT_INCLUDE_DIR,
-      os.path.join(QT_INCLUDE_DIR, 'Qt')
+    QT_INCLUDE_DIR,
+    os.path.join(QT_INCLUDE_DIR, 'Qt')
     ],
-  'LIBPATH': [
-    QT_LIB_DIR
-  ]
-}
+  }
+if FABRIC_BUILD_OS == 'Darwin':
+  qtFlags['FRAMEWORKPATH'] = [QT_LIB_DIR]
+else:
+  qtFlags['LIBPATH'] = [QT_LIB_DIR]
 
 libSuffix = ''
 if FABRIC_BUILD_OS == 'Windows':
@@ -40,11 +41,15 @@ if FABRIC_BUILD_OS == 'Windows':
 elif FABRIC_BUILD_OS == 'Linux':
   qtFlags['CCFLAGS'] = ['-DLINUX']
 
-qtFlags['LIBS'] = ['QtCore'+libSuffix, 'QtGui'+libSuffix, 'QtOpenGL'+libSuffix]
+libs = ['QtCore'+libSuffix, 'QtGui'+libSuffix, 'QtOpenGL'+libSuffix]
+if FABRIC_BUILD_OS == 'Darwin':
+  qtFlags['FRAMEWORKS'] = libs
+else:
+  qtFlags['LIBS'] = libs
 
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LIBS = ['advapi32', 'shell32', 'user32', 'Opengl32', 'glu32', 'gdi32'])
-elif FABRIC_BUILD_OS == 'Linux':
+elif FABRIC_BUILD_OS == 'Linux' or FABRIC_BUILD_OS == 'Darwin':
   env.Append(LIBS = ['boost_program_options'])
 
 env.MergeFlags(qtFlags)

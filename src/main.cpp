@@ -54,6 +54,16 @@ int main(int argc, char *argv[])
     return false;
   }
 
+  const char * FABRIC_DIR = getenv("FABRIC_DIR");
+  if(!FABRIC_DIR)
+  {
+    std::cout << "The environment variable FABRIC_DIR is not specified.\nIt should point to the Fabric Engine installation folder." << std::endl;
+    return false;
+  }
+
+  boost::filesystem::path appDir = FABRIC_DIR;
+  appDir = appDir / "Splice" / "Applications" / "FabricSpliceStandalone";
+
   FILE * f = fopen(spliceFilePath.c_str(), "rb");
   if(!f)
   {
@@ -62,7 +72,7 @@ int main(int argc, char *argv[])
   }
   fclose(f);
 
-	SpliceStandalone app(argc, argv);
+	SpliceStandalone app(argc, argv, appDir);
 	app.showMainWindow();
 	app.setupFusionLook();
   app.processEvents();

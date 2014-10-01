@@ -99,6 +99,8 @@ void KLEditor::compilePressed()
 
     	std::string currentPath = m_editorWrapper->getPath();
     	saveEditorCodeToDisk(currentPath);
+
+      m_editorWrapper->evaluate(true);
     );
   	
   	SpliceStandalone * app = SpliceStandalone::getInstance();

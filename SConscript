@@ -4,7 +4,7 @@
 
 import os, sys, platform, copy, glob
 
-Import('parentEnv', 'FABRIC_CAPI_DIR', 'FABRIC_SPLICE_VERSION', 'STAGE_DIR', 'FABRIC_BUILD_OS', 'FABRIC_BUILD_TYPE', 'QT_INCLUDE_DIR', 'QT_LIB_DIR', 'sharedCapiFlags', 'spliceFlags')
+Import('parentEnv', 'FABRIC_DIR', 'FABRIC_SPLICE_VERSION', 'STAGE_DIR', 'FABRIC_BUILD_OS', 'FABRIC_BUILD_TYPE', 'QT_INCLUDE_DIR', 'QT_LIB_DIR', 'sharedCapiFlags', 'spliceFlags')
 
 qtDir = os.path.split(QT_INCLUDE_DIR)[0]
 if FABRIC_BUILD_OS == 'Linux':
@@ -110,9 +110,8 @@ for sampleFile in glob.glob(os.path.join(env.Dir('samples').srcnode().abspath, '
     standaloneFiles.append(env.Install(STAGE_DIR.Dir('samples').Dir(baseName), env.Glob('samples/%s/*.splice' % baseName)))
 
 # also install the FabricCore dynamic library
-standaloneFiles.append(env.Install(STAGE_DIR, env.Glob(os.path.join(FABRIC_CAPI_DIR, 'lib', '*.so'))))
-standaloneFiles.append(env.Install(STAGE_DIR, env.Glob(os.path.join(FABRIC_CAPI_DIR, 'lib', '*.dylib'))))
-standaloneFiles.append(env.Install(STAGE_DIR, env.Glob(os.path.join(FABRIC_CAPI_DIR, 'lib', '*.dll'))))
+if FABRIC_BUILD_OS == 'Windows':
+  standaloneFiles.append(env.Install(STAGE_DIR, env.Glob(os.path.join(FABRIC_DIR, 'lib', '*.dll'))))
 
 # also install the qt libs
 if FABRIC_BUILD_OS == 'Windows':

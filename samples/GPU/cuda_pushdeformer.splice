@@ -14,7 +14,7 @@
             "name": "cudadeformer",
             "entry": "cudadeformer",
             "filename": "cudadeformer.kl",
-            "kl": "require Math;\nrequire Geometry;\nrequire InlineDrawing;\nrequire CudaGLHelpers;\n\noperator deform<<<index>>>(io Vec3 positions<>, io Vec3 normals<>, Scalar time) {\n  positions[index] += normals[index] * sin(time * 0.05);\n  Quat q;\n  q.setFromAxisAndAngle(Vec3(1, 0, 0), positions[index].x);\n  normals[index] = q.rotateVector(normals[index]);\n}\n\noperator cudadeformer(Scalar factor1, Scalar factor2, Scalar speed, Scalar time, Boolean useGPU, io DrawingHandle handle, io PolygonMesh geo, io CudaGLResourceManager resources) {\n\n  resources.enableGPU(useGPU);\n  \n  // generate a sphere\n  if(geo.pointCount() == 0) {\n    geo.addSphere(Xfo(), 8, 256, true, true);\n    report('Created PolygonMesh for deformation ('+geo.pointCount()+' points).');\n  }\n  \n  if(handle.isEmpty()) {\n  \n    InlineDrawing draw = handle.getDrawing();\n    \n    InlineMeshShape shape = InlineMeshShape('shape', geo);\n\n    // setup the shader and instance\n    InlineDrawing drawing = OGLInlineDrawing_GetInstance();\n    InlineShader shader = drawing.registerShader(OGLWireFrameShader('wireframe', OGLSurfaceShader()));\n    InlineMaterial mat = shader.getOrCreateMaterial('default');\n    mat.setUniform('u_diffuseColor', Color(0.2, 0.5, 1.0));\n    SimpleInlineInstance instance('shape', handle.getRootTransform(), shape, mat);\n\n    report('Created realtime rendering setup.');\n\n    // generate all resources for the sphere\n    resources.setGeometryAttributes(geo.getAttributes());\n    resources.setInlineShape(shape);\n\n    resources.addVec3Resource('positions');\n    resources.addVec3Resource('normals');\n    report('Mapped all resources.');\n  }\n\n  // map all resources to the GPU\n  resources.map();\n\n  Vec3 positions<> = resources.getVec3Array('positions');\n  Vec3 normals<> = resources.getVec3Array('normals');\n  \n  Size numPositions = positions.size();\n  deform<<<numPositions@resources.useGPU>>>(\n    positions, \n    normals,\n    time\n  );\n  \n  if(!resources.useGPU) {\n    GeometryAttributes attributes = geo.getAttributes();\n    Vec3Attribute positionsAttr = attributes.getAttribute('positions', Vec3Attribute);\n    Vec3Attribute normalsAttr = attributes.getAttribute('normals', Vec3Attribute);\n    positionsAttr.incrementVersion();\n    normalsAttr.incrementVersion();\n  }\n\n  resources.unmap();\n  \n}",
+            "kl": "require Math;\nrequire Geometry;\nrequire InlineDrawing;\nrequire CudaGLHelpers;\n\nconst Integer repetitions = 8;\n\noperator deform<<<index>>>(io Vec3 positions<>, io Vec3 normals<>, Scalar time) {\n  for(Integer i=0;i<repetitions;i++) {\n    positions[index] += normals[index] * sin(time * 0.1) / Scalar(repetitions);\n    Quat q;\n    Vec3 axis(1, 0, 0);\n    axis.x += mathRandomScalar(index + 17, 4) * 0.01;\n    axis.y += mathRandomScalar(index + 19, 5) * 0.01;\n    axis.z += mathRandomScalar(index + 21, 6) * 0.01;\n    axis.setUnit();\n    q.setFromAxisAndAngle(axis, positions[index].x  / Scalar(repetitions));\n    normals[index] = q.rotateVector(normals[index]);\n  }\n}\n\noperator cudadeformer(Scalar time, Boolean useGPU, io DrawingHandle handle, io PolygonMesh geo, io CudaGLResourceManager resources) {\n\n  resources.enableGPU(useGPU);\n  \n  // generate a sphere\n  if(geo.pointCount() == 0) {\n    geo.addSphere(Xfo(), 8, 768, true, true);\n    GeometryAttributes attributes = geo.getAttributes();\n    Vec3Attribute positions = attributes.getOrCreateVec3Attribute('positions');\n    Vec3Attribute originalPositions = attributes.getOrCreateVec3Attribute('originalPositions');\n    originalPositions.values = positions.values.clone();\n    \n    report('Created PolygonMesh for deformation ('+geo.pointCount()+' points).');\n  }\n  \n  if(time == 0.0) {\n    GeometryAttributes attributes = geo.getAttributes();\n    Vec3Attribute positions = attributes.getOrCreateVec3Attribute('positions');\n    Vec3Attribute originalPositions = attributes.getOrCreateVec3Attribute('originalPositions');\n    positions.values = originalPositions.values.clone();\n    positions.incrementVersion();\n    geo.recomputePointNormals();\n  }\n  \n  if(handle.isEmpty()) {\n  \n    InlineDrawing draw = handle.getDrawing();\n    \n    InlineMeshShape shape = InlineMeshShape('shape', geo);\n\n    // setup the shader and instance\n    InlineDrawing drawing = OGLInlineDrawing_GetInstance();\n    OGLWireFrameShader shader = drawing.registerShader(OGLWireFrameShader('wireframe', OGLSurfaceShader()));\n    shader.setWireFrame(false);\n    InlineMaterial mat = shader.getOrCreateMaterial('default');\n    mat.setUniform('u_diffuseColor', Color(0.2, 0.5, 1.0));\n    SimpleInlineInstance instance('shape', handle.getRootTransform(), shape, mat);\n\n    report('Created realtime rendering setup.');\n\n    // generate all resources for the sphere\n    resources.setGeometryAttributes(geo.getAttributes());\n    resources.setInlineShape(shape);\n\n    resources.addVec3Resource('positions');\n    resources.addVec3Resource('normals');\n    report('Mapped all resources.');\n  }\n\n  // map all resources to the GPU\n  resources.map();\n\n  Vec3 positions<> = resources.getVec3Array('positions');\n  Vec3 normals<> = resources.getVec3Array('normals');\n  \n  Size numPositions = positions.size();\n  deform<<<numPositions@resources.useGPU>>>(\n    positions, \n    normals,\n    time\n  );\n  \n  if(!resources.useGPU) {\n    GeometryAttributes attributes = geo.getAttributes();\n    Vec3Attribute positionsAttr = attributes.getAttribute('positions', Vec3Attribute);\n    Vec3Attribute normalsAttr = attributes.getAttribute('normals', Vec3Attribute);\n    positionsAttr.incrementVersion();\n    normalsAttr.incrementVersion();\n  }\n\n  resources.unmap();\n  \n}",
             "portmap": {}
           }
         }
@@ -26,39 +26,9 @@
   ],
   "ports": [
     {
-      "name": "factor1",
-      "node": "DGNode",
-      "graph": "cudapushdeformer",
-      "type": "Scalar",
-      "autoInitObjects": true,
-      "member": "factor1",
-      "mode": "in",
-      "options": {
-        "uiMax": 0.2,
-        "uiMin": 0
-      },
-      "persistence": true,
-      "default": "0.07000000029802322"
-    },
-    {
-      "name": "factor2",
-      "node": "DGNode",
-      "graph": "cudapushdeformer",
-      "type": "Scalar",
-      "autoInitObjects": true,
-      "member": "factor2",
-      "mode": "in",
-      "options": {
-        "uiMax": 2,
-        "uiMin": 0
-      },
-      "persistence": true,
-      "default": "0.6430000066757202"
-    },
-    {
       "name": "geo",
       "node": "DGNode",
-      "graph": "cudapushdeformer",
+      "graph": "cuda_pushdeformer",
       "type": "PolygonMesh",
       "autoInitObjects": true,
       "member": "geo",
@@ -68,7 +38,7 @@
     {
       "name": "handle",
       "node": "DGNode",
-      "graph": "cudapushdeformer",
+      "graph": "cuda_pushdeformer",
       "type": "DrawingHandle",
       "autoInitObjects": true,
       "member": "handle",
@@ -78,7 +48,7 @@
     {
       "name": "resources",
       "node": "DGNode",
-      "graph": "cudapushdeformer",
+      "graph": "cuda_pushdeformer",
       "type": "CudaGLResourceManager",
       "autoInitObjects": true,
       "member": "resources",
@@ -86,24 +56,9 @@
       "persistence": false
     },
     {
-      "name": "speed",
-      "node": "DGNode",
-      "graph": "cudapushdeformer",
-      "type": "Scalar",
-      "autoInitObjects": true,
-      "member": "speed",
-      "mode": "in",
-      "options": {
-        "uiMax": 10,
-        "uiMin": 0
-      },
-      "persistence": true,
-      "default": "4"
-    },
-    {
       "name": "time",
       "node": "DGNode",
-      "graph": "cudapushdeformer",
+      "graph": "cuda_pushdeformer",
       "type": "Scalar",
       "autoInitObjects": true,
       "member": "time",
@@ -113,7 +68,7 @@
     {
       "name": "useGPU",
       "node": "DGNode",
-      "graph": "cudapushdeformer",
+      "graph": "cuda_pushdeformer",
       "type": "Boolean",
       "autoInitObjects": true,
       "member": "useGPU",

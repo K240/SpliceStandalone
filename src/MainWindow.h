@@ -12,7 +12,7 @@
 #include <QtGui/QTableWidget>
 #include <QtGui/QSlider>
 #include <QtGui/QGroupBox>
-#include <QtCore/QElapsedTimer>
+#include <QtCore/QTime>
 #include "SpliceGraphWrapper.h"
 
 #include "Widgets/LogWidget.h"
@@ -94,7 +94,7 @@ namespace FabricSplice
     MainWindowKeyFilter * m_eventFilter;
 
     QStatusBar * m_statusBar;
-    QElapsedTimer m_statusBarTimer;
+    QTime m_statusBarTimer;
   };
 };
 

@@ -8,7 +8,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QImage>
 #include <QtOpenGL/QGLWidget>
-#include <QtCore/QElapsedTimer>
+#include <QtCore/QTime>
 
 #include <FabricSplice.h>
 #include <FabricCore.h>
@@ -59,7 +59,7 @@ namespace FabricSplice
 
     bool m_requiresInitialize;
 
-    QElapsedTimer m_fpsTimer;
+    QTime m_fpsTimer;
     double m_fps;
     double m_fpsStack[16];
 

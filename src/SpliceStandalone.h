@@ -8,6 +8,7 @@
 #include <QtGui/QSplashScreen>
 #include <vector>
 #include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #include "SpliceGraphWrapper.h"
 #include "MainWindow.h"
@@ -22,7 +23,7 @@ namespace FabricSplice {
 
   public:
 
-    SpliceStandalone(int &argc, char **argv, std::string spliceFilePath = "");
+    SpliceStandalone(int &argc, char **argv, boost::filesystem::path appDir, std::string spliceFilePath = "");
     virtual ~SpliceStandalone();
 
     SpliceGraphWrapper::Ptr addWrapper(const std::string & splicePath);

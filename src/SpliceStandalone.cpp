@@ -73,21 +73,19 @@ SpliceStandalone * SpliceStandalone::getInstance()
   return gApplication;
 }
 
-SpliceStandalone::SpliceStandalone(int &argc, char **argv, std::string spliceFilePath) 
+SpliceStandalone::SpliceStandalone(int &argc, char **argv, boost::filesystem::path appDir, std::string spliceFilePath) 
   : QApplication(argc, argv)
 {
 
   gApplication = this;
 
   m_mainWindow = NULL;
-
-  boost::filesystem::path executablePath = argv[0];
-  m_appPath = executablePath.parent_path();
+  m_appPath = appDir;
 
   QPixmap pixmap((m_appPath / "images" / "splash.jpg").string().c_str());
   m_splashScreen = new QSplashScreen(pixmap);
   m_splashScreen->show();
-
+  
   boost::filesystem::path extsDir = m_appPath / "Exts";
   addExtFolder(extsDir.string().c_str());
   

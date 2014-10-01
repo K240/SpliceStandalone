@@ -120,7 +120,6 @@ if FABRIC_BUILD_OS == 'Windows':
 else:
   standaloneApp = env.Program(binDir.File('splice'), sources)
 standaloneFiles.append(standaloneApp)
-standaloneFiles.append(env.Install(appDir, env.File('license.txt')))
 
 for sampleFile in glob.glob(os.path.join(env.Dir('samples').srcnode().abspath, '*')):
   baseName = os.path.split(sampleFile)[1]

@@ -98,7 +98,7 @@ if FABRIC_BUILD_OS == 'Darwin':
   env.Append(LINKFLAGS = ['-Wl,-rpath,@loader_path/../../..'])
 
 appDir = STAGE_DIR.Dir('Splice').Dir('Applications').Dir('FabricSpliceStandalone')
-extDir = STAGE_DIR.Dir('Exts').Dir('Splice')
+extDir = appDir.Dir('Exts')
 
 standaloneFiles = []
 standaloneApp = env.Program(target, sources)

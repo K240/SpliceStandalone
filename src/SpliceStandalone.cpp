@@ -86,6 +86,9 @@ SpliceStandalone::SpliceStandalone(int &argc, char **argv, boost::filesystem::pa
   m_splashScreen = new QSplashScreen(pixmap);
   m_splashScreen->show();
   
+  boost::filesystem::path extsDir = m_appPath / "Exts";
+  addExtFolder(extsDir.string().c_str());
+  
   Initialize(); 
 
   constructFabricClient();

@@ -102,7 +102,7 @@ sources += env.Glob('src/Widgets/AE/*.cpp')
 target = 'splice'
 
 if FABRIC_BUILD_OS == 'Linux':
-  env.Append(LINKFLAGS = ['-Wl,-rpath,\$ORIGIN/../lib'])
+  env.Append(LINKFLAGS = [Literal('-Wl,-rpath,$ORIGIN/../lib')])
   env['_LIBFLAGS' ] = '-Wl,--start-group ' + env['_LIBFLAGS'] + ' -Wl,--end-group'
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LINKFLAGS = ['/STACK:67108864'])

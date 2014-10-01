@@ -34,11 +34,11 @@
       "member": "factor1",
       "mode": "in",
       "options": {
-        "uiMax": 0.2,
+        "uiMax": 0.5,
         "uiMin": 0
       },
       "persistence": true,
-      "default": "0.07100000232458115"
+      "default": "0.2"
     },
     {
       "name": "factor2",
@@ -53,7 +53,7 @@
         "uiMin": 0
       },
       "persistence": true,
-      "default": "1.210000038146973"
+      "default": "0.2"
     },
     {
       "name": "geo",
@@ -94,11 +94,11 @@
       "member": "speed",
       "mode": "in",
       "options": {
-        "uiMax": 10,
+        "uiMax": 100,
         "uiMin": 0
       },
       "persistence": true,
-      "default": "9.819999694824219"
+      "default": "50.0"
     },
     {
       "name": "time",

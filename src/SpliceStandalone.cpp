@@ -151,6 +151,9 @@ SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & spliceP
     m_splashScreen->finish(m_mainWindow);
     m_splashScreen = NULL;
   }
+
+  if(m_mainWindow)
+    m_mainWindow->redraw();
   
   return wrapper;
 }

@@ -23,6 +23,8 @@ if FABRIC_BUILD_OS == 'Linux':
 
 # create the build environment
 env = Environment(tools=['default','qt'], QTDIR=qtDir, QT_LIB='', ENV=parentEnv['ENV'])
+if FABRIC_BUILD_OS == 'Linux':
+  env.Replace(QT_MOC = '$QT_BINPATH/moc-qt4')
 
 env.Append(CCFLAGS = parentEnv['CCFLAGS'])
 env.Append(LINKFLAGS = parentEnv['LINKFLAGS'])
@@ -60,8 +62,10 @@ else:
 
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LIBS = ['advapi32', 'shell32', 'user32', 'Opengl32', 'glu32', 'gdi32'])
-elif FABRIC_BUILD_OS == 'Linux' or FABRIC_BUILD_OS == 'Darwin':
+if FABRIC_BUILD_OS == 'Linux' or FABRIC_BUILD_OS == 'Darwin':
   env.Append(LIBS = ['boost_program_options'])
+if FABRIC_BUILD_OS == 'Linux':
+  env.Append(LIBS = ['pthread'])
 
 env.MergeFlags(qtFlags)
 env.MergeFlags(sharedCapiFlags)

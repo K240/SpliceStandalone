@@ -63,11 +63,15 @@ void KLEditor::setWrapper(SpliceGraphWrapper::Ptr wrapper)
 
   if(m_editorWrapper)
   {
-    FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
-    std::string opName = graph.getKLOperatorName(0);
-    std::string entry = graph.getKLOperatorEntry(opName.c_str());
-    std::string code = graph.getKLOperatorSourceCode(opName.c_str());
-  	m_sourceCodeWidget->setSourceCode(entry, code);
+    FABRIC_TRY("KLEditor::setWrapper", 
+  
+      FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
+      std::string opName = graph.getKLOperatorName(0);
+      std::string entry = graph.getKLOperatorEntry(opName.c_str());
+      std::string code = graph.getKLOperatorSourceCode(opName.c_str());
+    	m_sourceCodeWidget->setSourceCode(entry, code);
+
+    );
   }
 }
 
@@ -75,13 +79,17 @@ void KLEditor::saveEditorCodeToDisk(std::string path)
 {
   if(m_editorWrapper)
   {
-    FabricSplice::PersistenceInfo info;
-    info.hostAppName = FabricCore::Variant::CreateString("Splice Standalone");
-    info.hostAppVersion = FabricCore::Variant::CreateString("1.0");;
-    info.filePath = FabricCore::Variant::CreateString(path.c_str());
+    FABRIC_TRY("KLEditor::saveEditorCodeToDisk", 
 
-    FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
-    graph.saveToFile(path.c_str(), &info);
+      FabricSplice::PersistenceInfo info;
+      info.hostAppName = FabricCore::Variant::CreateString("Splice Standalone");
+      info.hostAppVersion = FabricCore::Variant::CreateString("1.0");;
+      info.filePath = FabricCore::Variant::CreateString(path.c_str());
+
+      FabricSplice::DGGraph graph = m_editorWrapper->getGraph();
+      graph.saveToFile(path.c_str(), &info);
+
+    );
   }
 }
 

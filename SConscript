@@ -4,7 +4,18 @@
 
 import os, sys, platform, copy, glob
 
-Import('parentEnv', 'FABRIC_CAPI_DIR', 'FABRIC_SPLICE_VERSION', 'STAGE_DIR', 'FABRIC_BUILD_OS', 'FABRIC_BUILD_TYPE', 'QT_INCLUDE_DIR', 'QT_LIB_DIR', 'sharedCapiFlags', 'spliceFlags')
+Import(
+  'parentEnv',
+  'FABRIC_DIR',
+  'FABRIC_SPLICE_VERSION',
+  'STAGE_DIR',
+  'FABRIC_BUILD_OS',
+  'FABRIC_BUILD_TYPE',
+  'QT_INCLUDE_DIR',
+  'QT_LIB_DIR',
+  'sharedCapiFlags',
+  'spliceFlags'
+  )
 
 qtDir = os.path.split(QT_INCLUDE_DIR)[0]
 if FABRIC_BUILD_OS == 'Linux':
@@ -12,6 +23,8 @@ if FABRIC_BUILD_OS == 'Linux':
 
 # create the build environment
 env = Environment(tools=['default','qt'], QTDIR=qtDir, QT_LIB='', ENV=parentEnv['ENV'])
+if FABRIC_BUILD_OS == 'Linux':
+  env.Replace(QT_MOC = '$QT_BINPATH/moc-qt4')
 
 env.Append(CCFLAGS = parentEnv['CCFLAGS'])
 env.Append(LINKFLAGS = parentEnv['LINKFLAGS'])
@@ -49,8 +62,10 @@ else:
 
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LIBS = ['advapi32', 'shell32', 'user32', 'Opengl32', 'glu32', 'gdi32'])
-elif FABRIC_BUILD_OS == 'Linux' or FABRIC_BUILD_OS == 'Darwin':
+if FABRIC_BUILD_OS == 'Linux' or FABRIC_BUILD_OS == 'Darwin':
   env.Append(LIBS = ['boost_program_options'])
+if FABRIC_BUILD_OS == 'Linux':
+  env.Append(LIBS = ['pthread'])
 
 env.MergeFlags(qtFlags)
 env.MergeFlags(sharedCapiFlags)
@@ -91,60 +106,64 @@ sources += env.Glob('src/Widgets/AE/*.cpp')
 target = 'splice'
 
 if FABRIC_BUILD_OS == 'Linux':
+  env.Append(LINKFLAGS = [Literal('-Wl,-rpath,$ORIGIN/../lib')])
   env['_LIBFLAGS' ] = '-Wl,--start-group ' + env['_LIBFLAGS'] + ' -Wl,--end-group'
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LINKFLAGS = ['/STACK:67108864'])
 if FABRIC_BUILD_OS == 'Darwin':
-  env.Append(LINKFLAGS = ['-Wl,-rpath,@loader_path/../../..'])
+  env.Append(LINKFLAGS = ['-Wl,-rpath,@loader_path/..'])
 
 appDir = STAGE_DIR.Dir('Splice').Dir('Applications').Dir('FabricSpliceStandalone')
-extDir = appDir.Dir('Exts')
+samplesDir = STAGE_DIR.Dir('Samples').Dir('SpliceStandalone')
+binDir = STAGE_DIR.Dir('bin')
 
 standaloneFiles = []
-standaloneApp = env.Program(target, sources)
-installedApp = env.Install(appDir, standaloneApp)
-
-standaloneFiles.append(installedApp)
-standaloneFiles.append(env.Install(appDir, env.File('license.txt')))
+if FABRIC_BUILD_OS == 'Windows':
+  standaloneApp = env.Program(binDir.File('splice.exe'), sources)
+else:
+  standaloneApp = env.Program(binDir.File('splice'), sources)
+standaloneFiles.append(standaloneApp)
 
 for sampleFile in glob.glob(os.path.join(env.Dir('samples').srcnode().abspath, '*')):
   baseName = os.path.split(sampleFile)[1]
   if os.path.isfile(sampleFile):
-    standaloneFiles.append(env.Install(appDir.Dir('samples'), env.File(baseName)))
+    standaloneFiles.append(env.Install(samplesDir, env.File(baseName)))
   else:
-    standaloneFiles.append(env.Install(appDir.Dir('samples').Dir(baseName), env.Glob('samples/%s/*.splice' % baseName)))
+    standaloneFiles.append(env.Install(samplesDir.Dir(baseName), env.Glob('samples/%s/*.splice' % baseName)))
 
-# On Windows: also install the FabricCore dynamic library
 if FABRIC_BUILD_OS == 'Windows':
-  standaloneFiles.append(env.Install(appDir, env.Glob(os.path.join(FABRIC_CAPI_DIR, 'lib', '*.so'))))
-  standaloneFiles.append(env.Install(appDir, env.Glob(os.path.join(FABRIC_CAPI_DIR, 'lib', '*.dylib'))))
-  standaloneFiles.append(env.Install(appDir, env.Glob(os.path.join(FABRIC_CAPI_DIR, 'lib', '*.dll'))))
-
   qtBinDir = os.path.join(os.path.split(QT_LIB_DIR)[0], 'bin')
   for qtLib in qtFlags['LIBS']:
-    standaloneFiles.append(env.Install(appDir, env.Glob(os.path.join(qtBinDir, '*%s*.so' % qtLib))))
-    standaloneFiles.append(env.Install(appDir, env.Glob(os.path.join(qtBinDir, '*%s*.dylib' % qtLib))))
-    standaloneFiles.append(env.Install(appDir, env.Glob(os.path.join(qtBinDir, '*%s*.dll' % qtLib))))
+    standaloneFiles.append(env.Install(binDir, env.Glob(os.path.join(qtBinDir, '*%s*.dll' % qtLib))))
 
 # install the extensions
 for ext in ['SpliceStandalone']:
-  extFiles = env.GlobRecursive(os.path.join(env.Dir('.').abspath, 'Exts', ext, '*.kl'))
-  extFiles += env.GlobRecursive(os.path.join(env.Dir('.').abspath, 'Exts', ext, '*.json'))
-  for extFile in extFiles:
-    absFile = extFile.srcnode().abspath
-    relFile = os.path.relpath(absFile, env.Dir('.').srcnode().abspath)
-    absFile = os.path.join(extDir.abspath, relFile)
-    standaloneFiles.append(env.Install(os.path.split(absFile)[0], extFile))
-standaloneFiles.append(env.Install(appDir.Dir('images'), env.Glob(os.path.join(env.Dir('.').abspath, 'images', '*'))))
+  standaloneFiles.append(
+    env.Install(
+      STAGE_DIR.Dir('Exts').Dir("SpliceStandalone"),
+      [
+        Glob(os.path.join('Exts', 'SpliceStandalone', '*.kl')),
+        Glob(os.path.join('Exts', 'SpliceStandalone', '*.json')),
+        ]
+      )
+    )
   
-# install PDB files on windows
-if FABRIC_BUILD_TYPE == 'Debug' and FABRIC_BUILD_OS == 'Windows':
-  env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s_incremental.pdb /Zi" % File(PDB)) or ""}']
-  pdbSource = standaloneApp[0].get_abspath().rpartition('.')[0]+".pdb"
-  pdbTarget = os.path.join(appDir.abspath, os.path.split(pdbSource)[1])
-  copyPdb = env.Command( 'copy', None, 'copy "%s" "%s" /Y' % (pdbSource, pdbTarget) )
-  env.Depends( copyPdb, installedApp )
-  env.AlwaysBuild(copyPdb)
+standaloneFiles.append(
+  env.Install(
+    appDir.Dir('images'),
+    Glob(os.path.join('images', '*.jpg'))
+    )
+  )
+
+# [pzion 20141001] WTF???
+# # install PDB files on windows
+# if FABRIC_BUILD_TYPE == 'Debug' and FABRIC_BUILD_OS == 'Windows':
+#   env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s_incremental.pdb /Zi" % File(PDB)) or ""}']
+#   pdbSource = standaloneApp[0].get_abspath().rpartition('.')[0]+".pdb"
+#   pdbTarget = os.path.join(appDir.abspath, os.path.split(pdbSource)[1])
+#   copyPdb = env.Command( 'copy', None, 'copy "%s" "%s" /Y' % (pdbSource, pdbTarget) )
+#   env.Depends( copyPdb, installedApp )
+#   env.AlwaysBuild(copyPdb)
 
 alias = env.Alias('splicestandalone', standaloneFiles)
 spliceData = (alias, standaloneFiles)

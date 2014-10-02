@@ -116,7 +116,6 @@ if FABRIC_BUILD_OS == 'Darwin':
 appDir = STAGE_DIR.Dir('Splice').Dir('Applications').Dir('FabricSpliceStandalone')
 samplesDir = STAGE_DIR.Dir('Samples').Dir('SpliceStandalone')
 binDir = STAGE_DIR.Dir('bin')
-extsDir = STAGE_DIR.Dir('Exts')
 
 standaloneFiles = []
 if FABRIC_BUILD_OS == 'Windows':
@@ -139,14 +138,16 @@ if FABRIC_BUILD_OS == 'Windows':
 
 # install the extensions
 for ext in ['SpliceStandalone']:
-  extFiles = env.GlobRecursive(os.path.join(env.Dir('.').abspath, 'Exts', ext, '*.kl'))
-  extFiles += env.GlobRecursive(os.path.join(env.Dir('.').abspath, 'Exts', ext, '*.json'))
-  for extFile in extFiles:
-    absFile = extFile.srcnode().abspath
-    relFile = os.path.relpath(absFile, env.Dir('.').srcnode().abspath)
-    absFile = os.path.join(extsDir.abspath, relFile)
-    standaloneFiles.append(env.Install(os.path.split(absFile)[0], extFile))
-
+  standaloneFiles.append(
+    env.Install(
+      STAGE_DIR.Dir('Exts').Dir("SpliceStandalone"),
+      [
+        Glob(os.path.join('Exts', 'SpliceStandalone', '*.kl')),
+        Glob(os.path.join('Exts', 'SpliceStandalone', '*.json')),
+        ]
+      )
+    )
+  
 standaloneFiles.append(
   env.Install(
     appDir.Dir('images'),

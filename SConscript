@@ -146,7 +146,13 @@ for ext in ['SpliceStandalone']:
     relFile = os.path.relpath(absFile, env.Dir('.').srcnode().abspath)
     absFile = os.path.join(extsDir.abspath, relFile)
     standaloneFiles.append(env.Install(os.path.split(absFile)[0], extFile))
-standaloneFiles.append(env.Install(appDir.Dir('images'), env.Glob(os.path.join(env.Dir('.').abspath, 'images', '*'))))
+
+standaloneFiles.append(
+  env.Install(
+    appDir.Dir('images'),
+    Glob(os.path.join('images', '*.jpg'))
+    )
+  )
 
 # [pzion 20141001] WTF???
 # # install PDB files on windows

@@ -23,6 +23,8 @@ if FABRIC_BUILD_OS == 'Linux':
 
 # create the build environment
 env = Environment(tools=['default','qt'], QTDIR=qtDir, QT_LIB='', ENV=parentEnv['ENV'])
+if FABRIC_BUILD_OS == 'Linux':
+  env.Replace(QT_MOC = '$QT_BINPATH/moc-qt4')
 
 env.Append(CCFLAGS = parentEnv['CCFLAGS'])
 env.Append(LINKFLAGS = parentEnv['LINKFLAGS'])
@@ -60,8 +62,10 @@ else:
 
 if FABRIC_BUILD_OS == 'Windows':
   env.Append(LIBS = ['advapi32', 'shell32', 'user32', 'Opengl32', 'glu32', 'gdi32'])
-elif FABRIC_BUILD_OS == 'Linux' or FABRIC_BUILD_OS == 'Darwin':
+if FABRIC_BUILD_OS == 'Linux' or FABRIC_BUILD_OS == 'Darwin':
   env.Append(LIBS = ['boost_program_options'])
+if FABRIC_BUILD_OS == 'Linux':
+  env.Append(LIBS = ['pthread'])
 
 env.MergeFlags(qtFlags)
 env.MergeFlags(sharedCapiFlags)
@@ -143,15 +147,16 @@ for ext in ['SpliceStandalone']:
     absFile = os.path.join(extsDir.abspath, relFile)
     standaloneFiles.append(env.Install(os.path.split(absFile)[0], extFile))
 standaloneFiles.append(env.Install(appDir.Dir('images'), env.Glob(os.path.join(env.Dir('.').abspath, 'images', '*'))))
-  
-# install PDB files on windows
-if FABRIC_BUILD_TYPE == 'Debug' and FABRIC_BUILD_OS == 'Windows':
-  env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s_incremental.pdb /Zi" % File(PDB)) or ""}']
-  pdbSource = standaloneApp[0].get_abspath().rpartition('.')[0]+".pdb"
-  pdbTarget = os.path.join(appDir.abspath, os.path.split(pdbSource)[1])
-  copyPdb = env.Command( 'copy', None, 'copy "%s" "%s" /Y' % (pdbSource, pdbTarget) )
-  env.Depends( copyPdb, installedApp )
-  env.AlwaysBuild(copyPdb)
+
+# [pzion 20141001] WTF???
+# # install PDB files on windows
+# if FABRIC_BUILD_TYPE == 'Debug' and FABRIC_BUILD_OS == 'Windows':
+#   env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s_incremental.pdb /Zi" % File(PDB)) or ""}']
+#   pdbSource = standaloneApp[0].get_abspath().rpartition('.')[0]+".pdb"
+#   pdbTarget = os.path.join(appDir.abspath, os.path.split(pdbSource)[1])
+#   copyPdb = env.Command( 'copy', None, 'copy "%s" "%s" /Y' % (pdbSource, pdbTarget) )
+#   env.Depends( copyPdb, installedApp )
+#   env.AlwaysBuild(copyPdb)
 
 alias = env.Alias('splicestandalone', standaloneFiles)
 spliceData = (alias, standaloneFiles)

@@ -113,7 +113,6 @@ if FABRIC_BUILD_OS == 'Windows':
 if FABRIC_BUILD_OS == 'Darwin':
   env.Append(LINKFLAGS = ['-Wl,-rpath,@loader_path/..'])
 
-appDir = STAGE_DIR.Dir('Splice').Dir('Applications').Dir('FabricSpliceStandalone')
 samplesDir = STAGE_DIR.Dir('Samples').Dir('SpliceStandalone')
 binDir = STAGE_DIR.Dir('bin')
 
@@ -150,8 +149,9 @@ for ext in ['SpliceStandalone']:
   
 standaloneFiles.append(
   env.Install(
-    appDir.Dir('images'),
-    Glob(os.path.join('images', '*.jpg'))
+    STAGE_DIR.Dir('Resources'),
+    Glob(os.path.join('images', '*.jpg')) + 
+    Glob(os.path.join('images', '*.png'))
     )
   )
 
@@ -160,7 +160,7 @@ standaloneFiles.append(
 # if FABRIC_BUILD_TYPE == 'Debug' and FABRIC_BUILD_OS == 'Windows':
 #   env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s_incremental.pdb /Zi" % File(PDB)) or ""}']
 #   pdbSource = standaloneApp[0].get_abspath().rpartition('.')[0]+".pdb"
-#   pdbTarget = os.path.join(appDir.abspath, os.path.split(pdbSource)[1])
+#   pdbTarget = os.path.join(STAGE_DIR.abspath, os.path.split(pdbSource)[1])
 #   copyPdb = env.Command( 'copy', None, 'copy "%s" "%s" /Y' % (pdbSource, pdbTarget) )
 #   env.Depends( copyPdb, installedApp )
 #   env.AlwaysBuild(copyPdb)

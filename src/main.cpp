@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
   }
 
   boost::filesystem::path appDir = FABRIC_DIR;
-  appDir = appDir / "Splice" / "Applications" / "FabricSpliceStandalone";
 
   FILE * f = fopen(spliceFilePath.c_str(), "rb");
   if(!f)

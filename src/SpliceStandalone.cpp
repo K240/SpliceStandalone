@@ -73,16 +73,16 @@ SpliceStandalone * SpliceStandalone::getInstance()
   return gApplication;
 }
 
-SpliceStandalone::SpliceStandalone(int &argc, char **argv, boost::filesystem::path appDir, std::string spliceFilePath) 
+SpliceStandalone::SpliceStandalone(int &argc, char **argv, boost::filesystem::path fabricDir, std::string spliceFilePath) 
   : QApplication(argc, argv)
 {
 
   gApplication = this;
 
   m_mainWindow = NULL;
-  m_appPath = appDir;
+  m_fabricPath = fabricDir;
 
-  QPixmap pixmap((m_appPath / "images" / "splash.jpg").string().c_str());
+  QPixmap pixmap((m_fabricPath / "Resources" / "splice_splash.jpg").string().c_str());
   m_splashScreen = new QSplashScreen(pixmap);
   m_splashScreen->show();
   
@@ -126,7 +126,7 @@ SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & spliceP
     m_splashScreen = NULL;
   }
 
-  QPixmap pixmap((m_appPath / "images" / "loading.jpg").string().c_str());
+  QPixmap pixmap((m_fabricPath / "Resources" / "splice_loading.jpg").string().c_str());
   m_splashScreen = new QSplashScreen(pixmap);
   m_splashScreen->show();
 

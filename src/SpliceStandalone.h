@@ -23,7 +23,7 @@ namespace FabricSplice {
 
   public:
 
-    SpliceStandalone(int &argc, char **argv, boost::filesystem::path appDir, std::string spliceFilePath = "");
+    SpliceStandalone(int &argc, char **argv, boost::filesystem::path fabricDir, std::string spliceFilePath = "");
     virtual ~SpliceStandalone();
 
     SpliceGraphWrapper::Ptr addWrapper(const std::string & splicePath);
@@ -50,7 +50,7 @@ namespace FabricSplice {
     void displayMessage(std::string message);
 
     // access to the application's path
-    boost::filesystem::path getAppPath() const { return m_appPath; }
+    boost::filesystem::path getFabricPath() const { return m_fabricPath; }
 
     // get the standard font for widgets
     QFont getWidgetFont();
@@ -67,7 +67,7 @@ namespace FabricSplice {
     // the main window 
     MainWindow * m_mainWindow;
 
-    boost::filesystem::path m_appPath;
+    boost::filesystem::path m_fabricPath;
     std::vector<SpliceGraphWrapper::Ptr> m_wrappers;
   };
 

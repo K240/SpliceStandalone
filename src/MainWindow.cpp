@@ -96,8 +96,8 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) :
 
 {
   SpliceStandalone* app = SpliceStandalone::getInstance();
-  boost::filesystem::path imagesDir = app->getAppPath() / "images";
-  boost::filesystem::path feLogoPath = imagesDir / "fe_logo.png";
+  boost::filesystem::path resourcesDir = app->getFabricPath() / "Resources";
+  boost::filesystem::path feLogoPath = resourcesDir / "fe_logo.png";
 
   // title && logo
   setWindowTitle("Fabric Engine Splice Standalone");

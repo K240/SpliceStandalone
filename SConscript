@@ -18,7 +18,7 @@ Import(
   )
 
 qtDir = os.path.split(QT_INCLUDE_DIR)[0]
-if FABRIC_BUILD_OS == 'Linux':
+if FABRIC_BUILD_OS != 'Windows':
   qtDir = '/usr'
 
 # create the build environment

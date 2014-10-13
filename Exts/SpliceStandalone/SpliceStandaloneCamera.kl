@@ -4,14 +4,14 @@ require FabricOGL;
 object SpliceStandaloneCamera {
   Vec3 position;
   Vec3 target;
-  Float32 near;
-  Float32 far;
+  Float32 nearValue;
+  Float32 farValue;
   Float32 fovY;
 };
 
 function SpliceStandaloneCamera() {
-  this.near = 0.01;
-  this.far = 1000.0;
+  this.nearValue = 0.01;
+  this.farValue = 1000.0;
   this.fovY = 50.0 * DEG_TO_RAD;
 
   this.resetPosition();

@@ -25,7 +25,7 @@ object SpliceStandaloneViewport;
 
 interface SpliceStandaloneViewportCallback
 {
-  Boolean perform!(io SpliceStandaloneViewport viewport);
+  Boolean perform!(SpliceStandaloneViewportPhase phase, io SpliceStandaloneViewport viewport);
 };
 
 object SpliceStandaloneViewport {
@@ -67,7 +67,7 @@ function Boolean SpliceStandaloneViewport.performCallback!(SpliceStandaloneViewp
   if(callback == null)
     return false;
   SpliceStandaloneViewport viewport = this;
-  return callback.perform(viewport);
+  return callback.perform(phase, viewport);
 }
 
 function SpliceStandaloneViewport.initializeGL!() {
@@ -124,10 +124,10 @@ function SpliceStandaloneViewport.paintGL!() {
   this.drawContext.viewport.camera.isOrthographic = false;
   this.drawContext.viewport.camera.fovY = this.camera.fovY;
   this.drawContext.viewport.camera.mat44 = this.camera.getMatrix();
-  this.drawContext.viewport.camera.nearDistance = this.camera.near;
-  this.drawContext.viewport.camera.farDistance = this.camera.far;
+  this.drawContext.viewport.camera.nearDistance = this.camera.nearValue;
+  this.drawContext.viewport.camera.farDistance = this.camera.farValue;
 
-  this.performCallback(SpliceStandaloneViewportPhase_AfterPaint);
+  this.performCallback(SpliceStandaloneViewportPhase_BeforePaint);
 
   if(!this.performCallback(SpliceStandaloneViewportPhase_Paint)) {
 

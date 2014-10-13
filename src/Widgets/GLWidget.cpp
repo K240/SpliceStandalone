@@ -57,6 +57,7 @@ void GLWidget::resetRTVals()
     }
 
     m_viewport.setMember("camera", m_camera);
+    m_viewport.setMember("windowId", constructUInt64RTVal((uint64_t)this->winId()));
 
     m_drawContext = constructObjectRTVal("DrawContext");
     if(!m_drawContext.isValid())

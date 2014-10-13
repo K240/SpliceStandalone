@@ -1,6 +1,7 @@
 require Math;
 require InlineDrawing;
 require Util;
+require Singletons;
 
 const Integer SpliceStandaloneViewport_Interaction_User = 0;
 const Integer SpliceStandaloneViewport_Interaction_CameraMove = 1;
@@ -13,7 +14,22 @@ const Integer SpliceStandaloneViewport_Modifier_Alt = 1;
 const Integer SpliceStandaloneViewport_Modifier_Shift = 2;
 const Integer SpliceStandaloneViewport_Modifier_Control = 4;
 
+alias Integer SpliceStandaloneViewportPhase;
+const SpliceStandaloneViewportPhase SpliceStandaloneViewportPhase_Initialize = 0;
+const SpliceStandaloneViewportPhase SpliceStandaloneViewportPhase_Resize = 1;
+const SpliceStandaloneViewportPhase SpliceStandaloneViewportPhase_BeforePaint = 2;
+const SpliceStandaloneViewportPhase SpliceStandaloneViewportPhase_Paint = 3;
+const SpliceStandaloneViewportPhase SpliceStandaloneViewportPhase_AfterPaint = 4;
+
+object SpliceStandaloneViewport;
+
+interface SpliceStandaloneViewportCallback
+{
+  Boolean perform!(io SpliceStandaloneViewport viewport);
+};
+
 object SpliceStandaloneViewport {
+  Integer windowId;
   Size width;
   Size height;
   SpliceStandaloneCamera camera;
@@ -21,6 +37,8 @@ object SpliceStandaloneViewport {
   Integer interactionState;
   DrawContext drawContext;
   InlineInstance gridInstance;
+  /// \internal
+  SpliceStandaloneViewportCallback callbacks[SpliceStandaloneViewportPhase];
 };
 
 function SpliceStandaloneViewport() {
@@ -31,7 +49,34 @@ function SpliceStandaloneViewport() {
   this.interactionState = SpliceStandaloneViewport_Interaction_User;
 }
 
+function SpliceStandaloneViewport.registerCallback!(SpliceStandaloneViewportPhase phase, SpliceStandaloneViewportCallback callback) {
+  if(callback == null)
+    this.deregisterCallback(phase);
+  else
+    this.callbacks[phase] = callback;
+}
+
+function SpliceStandaloneViewport.deregisterCallback!(SpliceStandaloneViewportPhase phase) {
+  if(this.callbacks.has(phase))
+    this.callbacks.delete(phase);
+}
+
+/// \internal
+function Boolean SpliceStandaloneViewport.performCallback!(SpliceStandaloneViewportPhase phase) {
+  SpliceStandaloneViewportCallback callback = this.callbacks.get(phase, null);
+  if(callback == null)
+    return false;
+  SpliceStandaloneViewport viewport = this;
+  return callback.perform(viewport);
+}
+
 function SpliceStandaloneViewport.initializeGL!() {
+
+  Singleton_set('Viewport', this);
+
+  if(this.performCallback(SpliceStandaloneViewportPhase_Initialize))
+    return;
+
   glClearColor(0.7, 0.7, 0.7, 1);
 
   glEnable(GL_COLOR_MATERIAL);
@@ -73,9 +118,6 @@ function SpliceStandaloneViewport.initializeGL!() {
 
 function SpliceStandaloneViewport.paintGL!() {
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glLoadIdentity();
-
   // update the inline viewport
   this.drawContext.viewport.dimensions.x = this.width;
   this.drawContext.viewport.dimensions.y = this.height;
@@ -85,11 +127,25 @@ function SpliceStandaloneViewport.paintGL!() {
   this.drawContext.viewport.camera.nearDistance = this.camera.near;
   this.drawContext.viewport.camera.farDistance = this.camera.far;
 
-  InlineDrawing drawing = OGLInlineDrawing_GetInstance();
-  drawing.draw(this.drawContext);
+  this.performCallback(SpliceStandaloneViewportPhase_AfterPaint);
+
+  if(!this.performCallback(SpliceStandaloneViewportPhase_Paint)) {
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+
+    InlineDrawing drawing = OGLInlineDrawing_GetInstance();
+    drawing.draw(this.drawContext);
+
+  }
+
+  this.performCallback(SpliceStandaloneViewportPhase_AfterPaint);
 }
 
 function SpliceStandaloneViewport.resizeGL!() {
+
+  if(this.performCallback(SpliceStandaloneViewportPhase_Resize))
+    return;
 
   Scalar aspect = Scalar(this.width) / Scalar(this.height);
 

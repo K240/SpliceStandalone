@@ -47,6 +47,8 @@ function SpliceStandaloneViewport() {
   this.drawContext.viewport = InlineViewport();
   this.drawContext.viewport.camera = InlineCamera();
   this.interactionState = SpliceStandaloneViewport_Interaction_User;
+
+  Singleton_set('Viewport', this);
 }
 
 function SpliceStandaloneViewport.registerCallback!(SpliceStandaloneViewportPhase phase, SpliceStandaloneViewportCallback callback) {
@@ -71,8 +73,6 @@ function Boolean SpliceStandaloneViewport.performCallback!(SpliceStandaloneViewp
 }
 
 function SpliceStandaloneViewport.initializeGL!() {
-
-  Singleton_set('Viewport', this);
 
   if(this.performCallback(SpliceStandaloneViewportPhase_Initialize))
     return;
@@ -99,21 +99,24 @@ function SpliceStandaloneViewport.initializeGL!() {
    return;
   }
 
-  // setup the grid
-  InlineDrawing drawing = OGLInlineDrawing_GetInstance();
+  if(!this.gridInstance)
+  {
+    // setup the grid
+    InlineDrawing drawing = OGLInlineDrawing_GetInstance();
 
-  InlineDebugShape grid = drawing.registerShape(InlineDebugShape('StandaloneGrid'));
+    InlineDebugShape grid = drawing.registerShape(InlineDebugShape('StandaloneGrid'));
 
-  Scalar scale = 2.0;
-  for(Integer x=-10;x<11;x++)
-    grid.drawLine(Vec3(x, 0, -10) * scale, Vec3(x, 0, 10) * scale);
-  for(Integer z=-10;z<11;z++)
-    grid.drawLine(Vec3(-10, 0, z) * scale, Vec3(10, 0, z) * scale);
+    Scalar scale = 2.0;
+    for(Integer x=-10;x<11;x++)
+      grid.drawLine(Vec3(x, 0, -10) * scale, Vec3(x, 0, 10) * scale);
+    for(Integer z=-10;z<11;z++)
+      grid.drawLine(Vec3(-10, 0, z) * scale, Vec3(10, 0, z) * scale);
 
-  InlineShader shader = drawing.registerShader(OGLFlatShader());
-  InlineMaterial mat = shader.getOrCreateMaterial('grey');
-  mat.setUniform('u_color', Color(0.05, 0.05, 0.05));
-  this.gridInstance = InlineInstance('StandaloneGrid', drawing.getRoot(), grid, mat);
+    InlineShader shader = drawing.registerShader(OGLFlatShader());
+    InlineMaterial mat = shader.getOrCreateMaterial('grey');
+    mat.setUniform('u_color', Color(0.05, 0.05, 0.05));
+    this.gridInstance = InlineInstance('StandaloneGrid', drawing.getRoot(), grid, mat);
+  }
 }
 
 function SpliceStandaloneViewport.paintGL!() {

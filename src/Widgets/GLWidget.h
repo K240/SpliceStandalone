@@ -28,10 +28,13 @@ namespace FabricSplice
 
     void resetRTVals();
 
+    void enableRedraw(bool enable = true) { m_redrawEnabled = enable; }
+    bool isRedrawEnabled() { return m_redrawEnabled; }
     void setTime(float time);
     void setWireFrame(bool wireFrame);
     void toggleGrid();
     void resetCameraPosition();
+    void toggleFullScreen();
 
     /// returns the real frames per second of this TimeSlider
     double fps() const { return m_fps; }
@@ -58,10 +61,15 @@ namespace FabricSplice
     FabricCore::RTVal m_drawContext;
 
     bool m_requiresInitialize;
+    bool m_requiresResize;
 
     QTime m_fpsTimer;
     double m_fps;
     double m_fpsStack[16];
+    bool m_redrawEnabled;
+    bool m_painting;
+
+    QWidget * m_prevParent;
 
   };
 };

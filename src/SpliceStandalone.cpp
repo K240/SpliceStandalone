@@ -120,6 +120,9 @@ void SpliceStandalone::displayMessage(std::string message)
 
 SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & splicePath)
 {
+  if(m_mainWindow)
+    m_mainWindow->setGlViewEnabled(false);
+
   if(m_splashScreen)
   {
     m_splashScreen->finish(m_mainWindow);
@@ -148,7 +151,10 @@ SpliceGraphWrapper::Ptr SpliceStandalone::addWrapper(const std::string & spliceP
   }
 
   if(m_mainWindow)
+  {
+    m_mainWindow->setGlViewEnabled(true);
     m_mainWindow->redraw();
+  }
   
   return wrapper;
 }

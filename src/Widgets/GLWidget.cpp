@@ -14,6 +14,7 @@
 #include <memory>
 
 #include <QtGui/qapplication.h>
+#include <QtGui/QDesktopWidget>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
@@ -36,6 +37,10 @@ GLWidget::GLWidget(QGLFormat format, QWidget *parent) :
   m_fpsTimer.start();
   resetRTVals();
 	setFocusPolicy(Qt::StrongFocus);
+
+  m_redrawEnabled = false;
+  m_painting = false;
+  m_prevParent = NULL;
 }
 
 void GLWidget::resetRTVals()
@@ -69,6 +74,7 @@ void GLWidget::resetRTVals()
   );
 
   m_requiresInitialize = true;
+  m_requiresResize = true;
 }
 
 FabricCore::RTVal GLWidget::getInlineViewport()
@@ -83,6 +89,11 @@ FabricCore::RTVal GLWidget::getInlineViewport()
 
 void GLWidget::paintGL()
 {
+  if(!m_redrawEnabled)
+    return;
+  if(m_painting)
+    return;
+
   // compute the fps
   double ms = m_fpsTimer.elapsed();
   if(ms == 0.0)
@@ -106,8 +117,20 @@ void GLWidget::paintGL()
   if(m_requiresInitialize)
   {
     initializeGL();
-    resizeGL(width(), height());
+    m_requiresResize = true;
   }
+
+  if(m_requiresResize)
+  {
+    FABRIC_TRY("GLWidget::resizeGL",
+
+      m_viewport.callMethod("", "resizeGL", 0, 0);
+
+    );
+    m_requiresResize = false;
+  }
+
+  m_painting = true;
 
   FABRIC_TRY("GLWidget::paintGL",
 
@@ -116,6 +139,8 @@ void GLWidget::paintGL()
   );
 
   emit redrawn();
+
+  m_painting = false;
 }
 
 void GLWidget::setTime(float time)
@@ -265,25 +290,56 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
 void GLWidget::initializeGL()
 {
+  if(!m_redrawEnabled)
+    return;
+  if(m_painting)
+    return;
+  m_painting = true;
+
   FABRIC_TRY("GLWidget::initializeGL",
 
     m_viewport.callMethod("", "initializeGL", 0, 0);
 
   );
   m_requiresInitialize = false;
+  m_painting = false;
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
+  if(m_painting)
+    return;
+  m_painting = true;
+
   FABRIC_TRY("GLWidget::resizeGL",
 
     m_viewport.setMember("width", constructUInt32RTVal(width));
     m_viewport.setMember("height", constructUInt32RTVal(height));
-    m_viewport.callMethod("", "resizeGL", 0, 0);
 
   );
+
+  m_painting = false;
+  m_requiresResize = true;
 }
 
-
-
-
+void GLWidget::toggleFullScreen()
+{
+  if(isFullScreen())
+  {
+    setParent(m_prevParent);
+    m_requiresInitialize = true;
+    showNormal();
+    resizeGL(m_prevParent->width(), m_prevParent->height());
+    updateGL();
+    m_prevParent = NULL;
+  }
+  else
+  {
+    m_prevParent = parentWidget();
+    m_requiresInitialize = true;
+    setParent(NULL);
+    showFullScreen();
+    resizeGL(QApplication::desktop()->width(), QApplication::desktop()->height());
+    updateGL();
+  }        
+}

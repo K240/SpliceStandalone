@@ -80,6 +80,17 @@ bool MainWindowKeyFilter::eventFilter(QObject* object, QEvent* event)
         m_window->activateManipulator();
         return true;
       }
+      case Qt::Key_F11:
+      {
+        m_window->m_glWidget->toggleFullScreen();
+        return true;
+      }
+      case Qt::Key_Escape:
+      {
+        if(m_window->m_glWidget->isFullScreen())
+          m_window->m_glWidget->toggleFullScreen();
+        return true;
+      }
     }
   }
 
@@ -169,10 +180,13 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags) :
 	glFormat.setSampleBuffers(true);
 	glFormat.setSamples(4);
 
-	m_glWidget = new GLWidget(glFormat, this);
+  QWidget * glParentWidget = new QWidget(this);
+  glParentWidget->setLayout(new QVBoxLayout());
+	m_glWidget = new GLWidget(glFormat, glParentWidget);
+  glParentWidget->layout()->addWidget(m_glWidget);
 	m_glWidget->makeCurrent();
   m_glWidget->installEventFilter(m_eventFilter);
-	setCentralWidget(m_glWidget);
+	setCentralWidget(glParentWidget);
 
 	m_glWidget->show();
 
@@ -377,4 +391,9 @@ void MainWindow::activateManipulator()
 	{
 		m_manipulatorContext->toolOffCleanup();
 	}
+}
+
+void MainWindow::setGlViewEnabled(bool enable)
+{
+  m_glWidget->enableRedraw(enable);
 }

@@ -229,8 +229,12 @@ void SpliceStandalone::needRedraw()
 
 void SpliceStandalone::setupFusionLook()
 {
+#if QT_VERSION >= 0x050000
   qApp->setStyle(QStyleFactory::create("Fusion"));
-   
+#else
+  qApp->setStyle(QStyleFactory::create("plastique"));
+#endif 
+
   QPalette darkPalette;
   darkPalette.setColor(QPalette::Window, QColor(53,53,53));
   darkPalette.setColor(QPalette::WindowText, Qt::white);
@@ -249,7 +253,9 @@ void SpliceStandalone::setupFusionLook()
        
   qApp->setPalette(darkPalette);
    
-  qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+  qApp->setStyleSheet(
+    "QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; };"
+    );
 
 }
 
